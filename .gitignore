@@ -1,0 +1,15 @@
+# UE5 - generated
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+
+# Assets & docs - not tracked
+Content/
+Docs/
+
+# VS - generated
+*.sln
+.vs/
+.vscode
