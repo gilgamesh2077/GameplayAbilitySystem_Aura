@@ -8,6 +8,7 @@ Build/
 # Assets & docs - not tracked
 Content/
 Docs/
+NoteBook/
 
 # VS - generated
 *.sln
