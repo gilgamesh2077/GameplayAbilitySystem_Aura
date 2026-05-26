@@ -9,6 +9,8 @@ Build/
 Content/
 Docs/
 NoteBook/
+Asset/
+UE_Import/
 
 # VS - generated
 *.sln
