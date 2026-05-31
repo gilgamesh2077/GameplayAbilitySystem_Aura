@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 
+#include "AuraGameplayTags.h"
 
 
 UAuraAbilitySystemComponent::UAuraAbilitySystemComponent()
@@ -16,6 +17,7 @@ UAuraAbilitySystemComponent::UAuraAbilitySystemComponent()
 void UAuraAbilitySystemComponent::AbilitySystemInfoSet()
 {
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this,&UAuraAbilitySystemComponent::EffectApplied);
+	
 }
 
 
