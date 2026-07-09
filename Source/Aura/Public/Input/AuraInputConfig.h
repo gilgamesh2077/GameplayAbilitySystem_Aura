@@ -8,7 +8,7 @@
 #include "AuraInputConfig.generated.h"
 
 USTRUCT(BlueprintType)
-struct FAuraInputAcition
+struct FAuraInputAction
 {
 	GENERATED_BODY()
 	
@@ -32,5 +32,5 @@ public:
 	const UInputAction* FindAbilityInputActionForTag(const FGameplayTag InputTag,bool bLogNotFound = false) const;
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	TArray<FAuraInputAcition> AbilityInputAction;
+	TArray<FAuraInputAction> AbilityInputAction;
 };
