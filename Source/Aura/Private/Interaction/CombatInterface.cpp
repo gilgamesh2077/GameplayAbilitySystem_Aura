@@ -14,3 +14,13 @@ FVector ICombatInterface::GetCombatSocketLocation() const
 {
 	return FVector();
 }
+
+bool ICombatInterface::IsAttacking() const
+{
+	return false;
+}
+
+void ICombatInterface::UpdateFacingRotationFromLocation(const FVector& Location)
+{
+	
+}

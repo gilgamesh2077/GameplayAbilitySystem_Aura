@@ -25,4 +25,8 @@ public:
 	virtual int32 GetPlayerLevel() const;
 	
 	virtual FVector GetCombatSocketLocation() const;
+	
+	virtual bool IsAttacking() const;
+	
+	virtual void UpdateFacingRotationFromLocation(const FVector& Location);
 };

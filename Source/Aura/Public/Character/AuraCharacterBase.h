@@ -12,6 +12,7 @@ class UGameplayAbility;
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
+class UMotionWarpingComponent;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface , public ICombatInterface
@@ -23,6 +24,14 @@ public:
 	AAuraCharacterBase();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
+	
+	virtual FVector GetCombatSocketLocation() const override;
+	
+	virtual bool IsAttacking() const override;
+	
+	void UpdateAttackWarpTarget(const FVector& TargetLocation);
+	
+	virtual void UpdateFacingRotationFromLocation(const FVector& Location) override;
 protected:
 	
 	virtual void BeginPlay() override;
@@ -33,7 +42,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName WeaponTipSocketName;
 	
-	virtual FVector GetCombatSocketLocation() const;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Motion Warping")
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+	
 	
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -61,5 +72,7 @@ private:
 	
 	UPROPERTY(EditAnywhere,Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+	
+	bool bCombating;
 	
 };

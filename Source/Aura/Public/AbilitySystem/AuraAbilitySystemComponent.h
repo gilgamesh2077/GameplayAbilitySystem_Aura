@@ -25,8 +25,14 @@ public:
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
+	void AbilityInputTagPressed(const FGameplayTag& InputTag);
 	
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
+	void CancelComboAttackAbilities();
+	void BeginComboAttackWindow();
+	void EndComboAttackWindow();
+	void ResetComboAttackWindow();
+	bool IsComboAttackWindowOpen() const;
 protected:
 	
 	virtual void BeginPlay() override;
@@ -39,4 +45,7 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
+
+private:
+	int32 ComboAttackWindowDepth = 0;
 };

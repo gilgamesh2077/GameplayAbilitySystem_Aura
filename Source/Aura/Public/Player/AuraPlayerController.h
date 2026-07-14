@@ -27,6 +27,7 @@ public:
 	AAuraPlayerController();
 	
 	virtual void PlayerTick(float DeltaTime);
+	
 protected:
 	virtual void BeginPlay() override;	
 	virtual void SetupInputComponent() override;
@@ -39,7 +40,16 @@ private:
 	UPROPERTY(EditAnywhere , Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
 	
+	UPROPERTY(EditAnywhere , Category = "Input")
+	TObjectPtr<UInputAction> ShiftAction;
+	
 	void Move(const FInputActionValue& InputActionValue);
+	
+	void ShiftPressed() {bShiftKeyDown = true;}
+	
+	void ShiftReleased() {bShiftKeyDown = false;}
+	
+	bool bShiftKeyDown = false;
 	
 	void CursorTrace();
 	IEnemyInterface* LastActor;
@@ -64,6 +74,7 @@ private:
 	bool bAutoRunning = false;
 	bool bTargeting = false;
 	
+	
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;
 	
@@ -71,4 +82,8 @@ private:
 	TObjectPtr<USplineComponent> Spline;
 	
 	void AutoRun();
+	void CancelComboAttackForMovement();
+	
+public:
+	bool bAttacking =false;
 };
