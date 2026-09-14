@@ -18,7 +18,7 @@ public:
 	
 	UAuraAbilitySystemComponent();
 	
-	void AbilitySystemInfoSet();
+	void AbilitySystemInfoSet();//Bind Delegate to Broadcast all imposed GameplayEffects to Client timely
 	
 	FEffectAssetTags EffectAssetTags;
 	

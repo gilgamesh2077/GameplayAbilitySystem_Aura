@@ -44,10 +44,11 @@ public:
 	FGameplayTag InputTag_2;
 	FGameplayTag InputTag_3;
 	FGameplayTag InputTag_4;
-
+	
+	//Ability
 	FGameplayTag Abilities_Attack_Combo;
 	FGameplayTag Event_Montage_ComboWindowClosed;
-	
+
 private:
 	
 	static FAuraGameplayTags GameplayTags;

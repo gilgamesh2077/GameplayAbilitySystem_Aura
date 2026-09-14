@@ -9,12 +9,12 @@ public class Aura : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" , "EnhancedInput", "GameplayAbilities" , "UMG" });
-
-		PrivateDependencyModuleNames.AddRange(new string[] {"GameplayTags" , "GameplayTasks" ,"NavigationSystem","MotionWarping"});
+		
+		PrivateDependencyModuleNames.AddRange(new string[] {"GameplayTags" , "GameplayTasks" ,"NavigationSystem","MotionWarping" ,"Niagara"});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+		 
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

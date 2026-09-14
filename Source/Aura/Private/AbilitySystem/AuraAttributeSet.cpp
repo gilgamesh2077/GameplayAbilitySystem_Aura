@@ -104,13 +104,27 @@ void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
 	{
 		AActor* TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
-		AController* TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
-		ACharacter* TargetCharacter = Cast<ACharacter>(TargetController->GetPawn());
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetCharacter);
 		
-		Props.TargetCharacter = TargetCharacter;
-		Props.TargetController = TargetController;
 		Props.TargetAvatarActor = TargetAvatarActor;
+		
+		AController* TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
+		if (TargetController == nullptr && TargetAvatarActor != nullptr)
+		{
+			if (const APawn* TargetPawn = Cast<APawn>(TargetAvatarActor))
+			{
+				TargetController = TargetPawn->GetController(); // 敌人通常是 null，合法
+			}
+		}
+		Props.TargetController = TargetController;
+	
+		ACharacter* TargetCharacter = Cast<ACharacter>(TargetAvatarActor);
+		if (TargetCharacter == nullptr && TargetController != nullptr)
+		{
+			TargetCharacter = Cast<ACharacter>(TargetController->GetPawn());
+		}
+		Props.TargetCharacter = TargetCharacter;
+		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetAvatarActor);
+		
 		Props.TargetAbilitySystemComponent = TargetASC;
 	}
 	
@@ -128,6 +142,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
+		UE_LOG(LogTemp,Warning,TEXT("Changed Health on %s, Health: %f"),*Props.TargetAvatarActor->GetName(),GetHealth());
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{

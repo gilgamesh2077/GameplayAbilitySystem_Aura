@@ -13,6 +13,7 @@ class UAbilityTask_WaitGameplayEvent;
 class UAnimInstance;
 class UAnimMontage;
 class UAbilityTask_WaitInputPress;
+class UGameplayEffect;
 
 USTRUCT(BlueprintType)
 struct FComboAttackSectionSettings
@@ -56,6 +57,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo")
 	FGameplayTag MontageEventTag;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	UFUNCTION()
 	void HandleTargetDataUnderMouse(const FGameplayAbilityTargetDataHandle& DataHandle);

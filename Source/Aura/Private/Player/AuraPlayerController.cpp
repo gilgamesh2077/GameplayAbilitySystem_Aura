@@ -133,6 +133,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 			
 		}
 	}
+	FollowTime = 0.f;
 }
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
@@ -248,5 +249,3 @@ void AAuraPlayerController::CancelComboAttackForMovement()
 		ASC->CancelComboAttackAbilities();
 	}
 }
-
-

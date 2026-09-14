@@ -33,7 +33,7 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* ActorTarget, TSubclassOf<UGam
 	const FActiveGameplayEffectHandle ActiveEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 	
 	const bool bIsInfinite = EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;
-	if (bIsInfinite && InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
+	if (HasAuthority() && bIsInfinite && ActiveEffectHandle.IsValid() && InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
 	{
 		ActiveEffectHandles.Add(ActiveEffectHandle,TargetASC);
 	}
@@ -43,6 +43,8 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* ActorTarget, TSubclassOf<UGam
 
 void AAuraEffectActor::OnOverlap(AActor* ActorTarget)
 {
+	if (!HasAuthority()) return;
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
 	{
 		ApplyEffectToTarget(ActorTarget,InstantGameplayEffectClass);
@@ -59,6 +61,8 @@ void AAuraEffectActor::OnOverlap(AActor* ActorTarget)
 
 void AAuraEffectActor::OnEndOverlap(AActor* ActorTarget)
 {
+	if (!HasAuthority()) return;
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
 	{
 		ApplyEffectToTarget(ActorTarget,InstantGameplayEffectClass);

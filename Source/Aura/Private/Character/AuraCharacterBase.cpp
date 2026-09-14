@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Player/AuraPlayerController.h"
 #include "MotionWarpingComponent.h"
+#include "Aura/Aura.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
@@ -16,8 +17,10 @@ AAuraCharacterBase::AAuraCharacterBase()
 	PrimaryActorTick.bCanEverTick = false;
 	
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
-	
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera,ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
 	
 	MotionWarpingComponent =  CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
@@ -80,13 +83,12 @@ void AAuraCharacterBase::InitAbilityActorInfo()
 
 void AAuraCharacterBase::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect> GameplayEffectClass,const float Level) const 
 {
-	check(GetAbilitySystemComponent());
-	check(GameplayEffectClass);
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	
-	FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
-	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass,Level,ContextHandle);
-	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(),GetAbilitySystemComponent());
+	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GameplayEffectClass,Level,ContextHandle);
+	const FActiveGameplayEffectHandle ActiveHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 
 void AAuraCharacterBase::InitializeDefaultAttributes() const
