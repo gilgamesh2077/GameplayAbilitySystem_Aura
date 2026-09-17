@@ -77,6 +77,11 @@ void AAuraCharacterBase::UpdateFacingRotationFromLocation(const FVector& Locatio
 	UpdateAttackWarpTarget(Location);
 }
 
+UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
+{
+	return HitReactMontage;	
+}
+
 void AAuraCharacterBase::InitAbilityActorInfo()
 {
 }

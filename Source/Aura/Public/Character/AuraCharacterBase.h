@@ -13,6 +13,7 @@ class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
 class UMotionWarpingComponent;
+class UAnimMontage;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface , public ICombatInterface
@@ -32,6 +33,8 @@ public:
 	void UpdateAttackWarpTarget(const FVector& TargetLocation);
 	
 	virtual void UpdateFacingRotationFromLocation(const FVector& Location) override;
+	
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 protected:
 	
 	virtual void BeginPlay() override;
@@ -65,13 +68,16 @@ protected:
 	
 	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect> GameplayEffectClass , const float Level) const;
 	
-	void InitializeDefaultAttributes()const ;
+	virtual void InitializeDefaultAttributes()const ;
 	
 	void AddCharacterAbilities();
 private:
 	
 	UPROPERTY(EditAnywhere,Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+	
+	UPROPERTY(EditAnywhere,Category="Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 	
 	bool bCombating;
 	

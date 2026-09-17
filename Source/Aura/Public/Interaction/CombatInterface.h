@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 #pragma once
 
@@ -7,11 +7,13 @@
 #include "CombatInterface.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE()
+UINTERFACE(BlueprintType)
 class UCombatInterface : public UInterface
 {
 	GENERATED_BODY()
 };
+
+class UAnimMontage;
 
 /**
  * 
@@ -29,4 +31,7 @@ public:
 	virtual bool IsAttacking() const;
 	
 	virtual void UpdateFacingRotationFromLocation(const FVector& Location);
+	
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
+	UAnimMontage* GetHitReactMontage();
 };

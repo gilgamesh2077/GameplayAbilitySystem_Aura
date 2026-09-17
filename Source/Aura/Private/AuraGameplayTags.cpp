@@ -3,6 +3,8 @@
 
 #include "AuraGameplayTags.h"
 #include "GameplayTagsManager.h"
+
+
 FAuraGameplayTags FAuraGameplayTags::GameplayTags;
 
 void FAuraGameplayTags::InitializeNativeGameplayTags()
@@ -33,6 +35,9 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.2"),FString("Input Tag for 2 key"));
 	GameplayTags.InputTag_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.3"),FString("Input Tag for 3 key"));
 	GameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.4"),FString("Input Tag for 4 key"));
+	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"),FString("Damage"));
+	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects_HitReact"),FString("Effects of HitReact"));
+	
 	GameplayTags.Abilities_Attack_Combo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Attack.Combo"),FString("Three-stage combo attack that movement can cancel"));
 	GameplayTags.Event_Montage_ComboWindowClosed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.ComboWindowClosed"),FString("Combo attack window closed"));
 
