@@ -35,6 +35,11 @@ public:
 	virtual void UpdateFacingRotationFromLocation(const FVector& Location) override;
 	
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	
+	virtual void Die() override;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void MulticastHandleDeath();
 protected:
 	
 	virtual void BeginPlay() override;
@@ -71,6 +76,22 @@ protected:
 	virtual void InitializeDefaultAttributes()const ;
 	
 	void AddCharacterAbilities();
+	
+	/* Dissolve Effects */
+	
+	void Dissolve();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstaceDynamic);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstaceDynamic);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UMaterialInstance> DissolveMaterialInstance;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
 private:
 	
 	UPROPERTY(EditAnywhere,Category="Abilities")
