@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AuraGameplayAbility.h"
+#include "AuraDamageGameplayAbility.h"
 #include "AuraProjectileSpell.generated.h"
 
 class UTargetDataUnderMouse;
@@ -25,7 +25,7 @@ struct FComboAttackSectionSettings
 };
 
 UCLASS()
-class AURA_API UAuraProjectileSpell : public UAuraGameplayAbility
+class AURA_API UAuraProjectileSpell : public UAuraDamageGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -57,9 +57,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo")
 	FGameplayTag MontageEventTag;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	UFUNCTION()
 	void HandleTargetDataUnderMouse(const FGameplayAbilityTargetDataHandle& DataHandle);

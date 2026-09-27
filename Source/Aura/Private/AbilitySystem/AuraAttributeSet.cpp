@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 
 #include "AbilitySystem/AuraAttributeSet.h"
@@ -8,8 +8,8 @@
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "Interaction/CombatInterface.h"
-#include "Kismet/GameplayStatics.h"
 #include "Player/AuraPlayerController.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
@@ -89,7 +89,6 @@ void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 		AActor* SourceAvatarActor = SourceASC->AbilityActorInfo->AvatarActor.Get();
 		Props.SourceAvatarActor = SourceAvatarActor;
 		AController* SourceController = SourceASC->AbilityActorInfo->PlayerController.Get();
-		Props.SourceController = SourceController;
 		if (SourceController == nullptr && SourceAvatarActor != nullptr)
 		{
 			if (const APawn* Pawn = Cast<APawn>(SourceAvatarActor))
@@ -97,6 +96,7 @@ void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 				SourceController = Pawn->GetController(); 
 			}
 		}
+		Props.SourceController = SourceController;
 		if (SourceController)
 		{
 			ACharacter* SourceCharacter = Cast<ACharacter>(SourceController->GetPawn());
@@ -183,9 +183,11 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			//show damage
 			if (Props.SourceCharacter != Props.TargetCharacter)
 			{
-				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter,0)))
+				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.SourceController))
 				{
-					PC->ShowDamageNumber(LocalIncomingDamage,Props.TargetCharacter);
+					const bool bBlock = UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContext);
+					const bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContext);
+					PC->ShowDamageNumber(LocalIncomingDamage,Props.TargetCharacter ,bBlock,bCriticalHit);
 				}
 			}
 		}

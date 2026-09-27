@@ -36,6 +36,8 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.3"),FString("Input Tag for 3 key"));
 	GameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.4"),FString("Input Tag for 4 key"));
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"),FString("Damage"));
+	GameplayTags.Damage_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage.Fire"),FString("Fire Damage Type"));
+	GameplayTags.DamageTypes.Add(GameplayTags.Damage_Fire);
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects_HitReact"),FString("Effects of HitReact"));
 	
 	GameplayTags.Abilities_Attack_Combo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Attack.Combo"),FString("Three-stage combo attack that movement can cancel"));
