@@ -116,7 +116,7 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 void UAuraAbilitySystemComponent::CancelComboAttackAbilities()
 {
 	FGameplayTagContainer ComboAttackTags;
-	ComboAttackTags.AddTag(FAuraGameplayTags::Get().Abilities_Attack_Combo);
+	ComboAttackTags.AddTag(FAuraGameplayTags::Get().Abilities_Combo);
 	
 	CancelAbilities(&ComboAttackTags);
 }
