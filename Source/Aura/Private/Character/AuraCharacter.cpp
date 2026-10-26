@@ -38,11 +38,16 @@ void AAuraCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
-int32 AAuraCharacter::GetPlayerLevel() const
+int32 AAuraCharacter::GetAuraCharacterLevel_Implementation() const
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
 	check(AuraPlayerState);
 	return AuraPlayerState->GetPlayerLevel();
+}
+
+bool AAuraCharacter::IsPlayer_Implementation() const
+{
+	return true;
 }
 
 void AAuraCharacter::InitAbilityActorInfo()
@@ -51,8 +56,9 @@ void AAuraCharacter::InitAbilityActorInfo()
 	check(AuraPlayerState);
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = AuraPlayerState->GetAttributeSet();
-	AbilitySystemComponent->InitAbilityActorInfo(AuraPlayerState,this);
-	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilitySystemInfoSet();
+	//此句是后续初始化的大前提，告诉ASC的身份，也是为啥可以在技能蓝图里直接获取技能上下文（源，目标）
+	AbilitySystemComponent->InitAbilityActorInfo(AuraPlayerState,this);// 这句保证了： ASC->GetOwnerActor() = AuraPlayerState ;ASC->GetAvatarActor() = AAuraCharacter
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilitySystemInfoSet();//绑定客户端远程过程调用，即GE委托广播
 	
 	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
 	{

@@ -4,12 +4,13 @@
 #include "Character/AuraCharacterBase.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemDebugHUD.h"
+#include "AuraGameplayTags.h"
 #include "GameplayEffectTypes.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Player/AuraPlayerController.h"
 #include "MotionWarpingComponent.h"
-#include "Aura/Aura.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
@@ -43,9 +44,40 @@ void AAuraCharacterBase::BeginPlay()
 	
 }
 
-FVector AAuraCharacterBase::GetCombatSocketLocation() const
+FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) const
 {
-	return Weapon->GetSocketLocation(WeaponTipSocketName);
+	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Weapon) && IsValid(Weapon))
+	{
+		return Weapon -> GetSocketLocation(WeaponTipSocketName);
+	}
+	
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_LeftHand))
+	{
+		return GetMesh()->GetSocketLocation(LeftHandSocketName);
+	}
+	
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_RightHand))
+	{
+		return GetMesh()-> GetSocketLocation(RightHandSocketName);
+	}
+	
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,2.f,FColor::Green,FString::Printf( TEXT("WeaponSocketWrong")));
+	}
+	return FVector::ZeroVector;
+}
+
+
+bool AAuraCharacterBase::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* AAuraCharacterBase::GetAvatar_Implementation()
+{
+	return this;
 }
 
 bool AAuraCharacterBase::IsAttacking() const
@@ -74,7 +106,7 @@ void AAuraCharacterBase::UpdateAttackWarpTarget(const FVector& TargetLocation)
 		FTransform(FacingRotation, WarpLocation));
 }
 
-void AAuraCharacterBase::UpdateFacingRotationFromLocation(const FVector& Location)
+void AAuraCharacterBase::UpdateFacingRotationFromLocation_Implementation(const FVector& Location)
 {
 	UpdateAttackWarpTarget(Location);
 }
@@ -82,6 +114,11 @@ void AAuraCharacterBase::UpdateFacingRotationFromLocation(const FVector& Locatio
 UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
 {
 	return HitReactMontage;	
+}
+
+TArray<FTaggedMontage> AAuraCharacterBase::GetTaggedMontages_Implementation() const
+{
+	return AttackMontages;
 }
 
 void AAuraCharacterBase::Die()
@@ -105,6 +142,7 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();
+	bDead = true;
 }
 
 void AAuraCharacterBase::InitAbilityActorInfo()

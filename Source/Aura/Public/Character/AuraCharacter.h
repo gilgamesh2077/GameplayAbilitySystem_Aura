@@ -23,8 +23,10 @@ public:
 	virtual void OnRep_PlayerState() override;
 	
 	/*Combat Interface*/
-	virtual int32 GetPlayerLevel() const override;
+	virtual int32 GetAuraCharacterLevel_Implementation() const override;
 	/*End Combat Interface*/
+	
+	bool IsPlayer_Implementation() const;
 protected:
 	virtual void InitAbilityActorInfo() override;
 	

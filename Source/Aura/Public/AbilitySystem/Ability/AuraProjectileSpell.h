@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AuraDamageGameplayAbility.h"
+#include "ProjectileSpell.h"
 #include "AuraProjectileSpell.generated.h"
 
 class UTargetDataUnderMouse;
@@ -25,14 +25,15 @@ struct FComboAttackSectionSettings
 };
 
 UCLASS()
-class AURA_API UAuraProjectileSpell : public UAuraDamageGameplayAbility
+class AURA_API UAuraProjectileSpell : public UProjectileSpell
 {
 	GENERATED_BODY()
 
 public:
 	UAuraProjectileSpell();
 	void RequestTargetData();
-
+private:
+	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                             const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -40,9 +41,6 @@ public:
 
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
-	TSubclassOf<AAuraProjectile> ProjectileClass;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo")
 	TObjectPtr<UAnimMontage> AttackMontage;
 
@@ -76,7 +74,6 @@ protected:
 	bool QueueNextComboSection();
 	bool IsComboAttackWindowOpen() const;
 	const FComboAttackSectionSettings* GetCurrentComboSectionSettings() const;
-	void SpawnProjectile(const FVector& TargetLocation) const;
 	void ResetComboState();
 
 	UPROPERTY()

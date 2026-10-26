@@ -13,6 +13,7 @@
 #include "AI/AuraAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/CapsuleComponent.h"
 
 void AAuraEnemy::BeginPlay()
 {
@@ -21,7 +22,7 @@ void AAuraEnemy::BeginPlay()
 	InitAbilityActorInfo();
 	if (HasAuthority())
 	{
-		UAuraAbilitySystemLibrary::GiveStartupAbilities(this,AbilitySystemComponent , CharacterClass);
+		UAuraAbilitySystemLibrary::GiveStartupAbilities(this,AbilitySystemComponent , CharacterClass , Level);
 	}
 	
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject()))
@@ -87,7 +88,12 @@ AAuraEnemy::AAuraEnemy()
 {
 
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
-	
+
+	// 敌人胶囊体对 Pawn 设为 Overlap：敌人之间不再互相阻挡/推动（避免集群攻击时被挤得位移）。
+	// 玩家胶囊体对 Pawn 仍是 Block，而 Unreal 的碰撞合并规则是「Block 优先于 Overlap」，
+	// 所以敌人 ↔ 玩家仍是 Block，玩家依然会被敌人挡住。
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
 	AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
@@ -139,7 +145,17 @@ void AAuraEnemy::UnHighlightActor()
 	Weapon->SetRenderCustomDepth(false);
 }
 
-int32 AAuraEnemy::GetPlayerLevel() const
+void AAuraEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* AAuraEnemy::GetCombatTarget_Implementation() 
+{
+	return CombatTarget;
+}
+
+int32 AAuraEnemy::GetAuraCharacterLevel_Implementation() const
 {
 	return Level;
 }
@@ -148,8 +164,18 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
-	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),bHitReacting);
+	if (AuraAIController && AuraAIController->GetBlackboardComponent())
+	{
+		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),bHitReacting);
+	}
+	
 }
+
+bool AAuraEnemy::IsPlayer_Implementation() const
+{
+	return false;
+}
+
 
 void AAuraEnemy::Die()
 {

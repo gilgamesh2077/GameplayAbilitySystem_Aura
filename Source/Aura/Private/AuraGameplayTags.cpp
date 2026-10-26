@@ -68,6 +68,10 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"),FString("Effects of HitReact"));
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Attack"),FString("Attack Abilities Tag"));
 	
+	//Montage
+	GameplayTags.Montage_Attack_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.Weapon"),FString("Montage Attack Weapon Tag"));
+	GameplayTags.Montage_Attack_RightHand= UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.RightHand"),FString("Montage Attack RightHand Tag"));
+	GameplayTags.Montage_Attack_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.LeftHand"),FString("Montage Attack LeftHand Tag"));
 	
 	GameplayTags.Abilities_Combo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Combo"),FString("Three-stage combo attack that movement can cancel"));
 	GameplayTags.Event_Montage_ComboWindowClosed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.ComboWindowClosed"),FString("Combo attack window closed"));

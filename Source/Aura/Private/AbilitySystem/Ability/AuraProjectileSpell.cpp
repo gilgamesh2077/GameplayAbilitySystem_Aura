@@ -2,7 +2,6 @@
 
 #include "AbilitySystem/Ability/AuraProjectileSpell.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Actor/AuraProjectile.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -12,10 +11,10 @@
 #include "Animation/AnimMontage.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Interaction/CombatInterface.h"
+#include "Interaction/EnemyInterface.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Player/AuraPlayerController.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
-#include "AuraGameplayTags.h"
 
 UAuraProjectileSpell::UAuraProjectileSpell()
 {
@@ -52,6 +51,15 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                            const FGameplayEventData* TriggerEventData)
 {
+	// 敌人（AI）：完全交给蓝图的 Event ActivateAbility 驱动（播蒙太奇 → 蓝图通知 → 生成投射物）
+	const AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (AvatarActor && AvatarActor->Implements<UEnemyInterface>())
+	{
+		Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+		return;
+	}
+
+	// —— 以下为玩家逻辑 ——
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -176,10 +184,7 @@ void UAuraProjectileSpell::HandleTargetDataUnderMouse(const FGameplayAbilityTarg
 		if (HitResult.bBlockingHit)
 		{
 			ProjectileTargetLocation = HitResult.Location;
-			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
-			{
-				CombatInterface->UpdateFacingRotationFromLocation(ProjectileTargetLocation);
-			}
+			ICombatInterface::Execute_UpdateFacingRotationFromLocation(GetAvatarActorFromActorInfo(),ProjectileTargetLocation);
 		}
 	}
 
@@ -221,57 +226,6 @@ void UAuraProjectileSpell::HandleComboWindowClosed(FGameplayEventData Payload)
 		GetAbilitySystemComponentFromActorInfo())
 	{
 		ASC->CurrentMontageJumpToSection(ComboSections[CurrentComboSectionIndex].SectionName);
-	}
-}
-
-void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation) const
-{
-	if (!HasAuthority(&CurrentActivationInfo) || !ProjectileClass) return;
-
-	if (const ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
-	{
-		FTransform SpawnTransform;
-		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-		FRotator Rotation = (TargetLocation - SocketLocation).Rotation();
-		Rotation.Pitch = 0.0f;
-		
-		SpawnTransform.SetRotation(Rotation.Quaternion());
-		SpawnTransform.SetLocation(SocketLocation);
-		
-		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(ProjectileClass,
-			SpawnTransform,
-			GetOwningActorFromActorInfo(),
-			Cast<APawn>(GetAvatarActorFromActorInfo()),
-			ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-
-		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
-		
-		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-		EffectContextHandle.SetAbility(this);
-		EffectContextHandle.AddSourceObject(Projectile);
-		TArray<TWeakObjectPtr<AActor>> Actors;
-		Actors.Add(Projectile);
-		EffectContextHandle.AddActors(Actors);
-		FHitResult HitResult;
-		HitResult.Location = ProjectileTargetLocation;
-		EffectContextHandle.AddHitResult(HitResult);
-		
-		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
-		
-		const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
-		
-		
-		
-		for (auto & Pair: DamageTypes)
-		{
-			const float ScaleDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
-			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,Pair.Key, ScaleDamage);
-		}
-		
-		
-		Projectile->DamageEffectSpecHandle = SpecHandle;
-		
-		Projectile->FinishSpawning(SpawnTransform);
 	}
 }
 

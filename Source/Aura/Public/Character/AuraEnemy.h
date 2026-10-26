@@ -22,13 +22,14 @@ class AURA_API AAuraEnemy : public AAuraCharacterBase,public IEnemyInterface
 	GENERATED_BODY()
 	
 protected:
-	virtual void BeginPlay() override;	
+	
 	
 	virtual void InitAbilityActorInfo() override;
 	
 	virtual void InitializeDefaultAttributes() const override;
 	
 public:
+	virtual void BeginPlay() override;	
 	
 	AAuraEnemy();
 	
@@ -37,10 +38,15 @@ public:
 	/* Enemy Interface */
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
+	
+	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() override ;
 	/* End Enemy Interface */
 	
 	/* Combat Interface*/
-	virtual int32 GetPlayerLevel() const override;
+	virtual int32 GetAuraCharacterLevel_Implementation() const override;
+	
+	virtual void Die() override;
 	/*End Combat Interface*/
 	
 	UPROPERTY(BlueprintAssignable)
@@ -51,16 +57,24 @@ public:
 	
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	
-	virtual void Die() override;
+	virtual bool IsPlayer_Implementation() const override;
+	
 	
 	UPROPERTY(BlueprintReadOnly ,Category = "Combat")
 	bool bHitReacting = false;
 	
 	UPROPERTY(BlueprintReadOnly ,Category = "Combat")
+	bool bAttacking = false;
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Combat")
 	float BaseWalkSpeed = 250.f;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly ,Category = "Combat")
 	float LifeSpan = 5.f;
+	
+	UPROPERTY(BlueprintReadOnly ,Category = "Combat")
+	TObjectPtr<AActor> CombatTarget;
 protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly , Category = "Character Class Defaults")
@@ -77,4 +91,5 @@ protected:
 	
 	UPROPERTY()
 	 TObjectPtr<AAuraAIController> AuraAIController;
+	
 };

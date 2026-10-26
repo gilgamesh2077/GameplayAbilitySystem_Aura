@@ -21,34 +21,60 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
 	
 	AAuraCharacterBase();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 	
-	virtual FVector GetCombatSocketLocation() const override;
+	
 	
 	virtual bool IsAttacking() const override;
 	
 	void UpdateAttackWarpTarget(const FVector& TargetLocation);
 	
-	virtual void UpdateFacingRotationFromLocation(const FVector& Location) override;
+	virtual void UpdateFacingRotationFromLocation_Implementation(const FVector& Location) override;
 	
-	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	
-	virtual void Die() override;
 	
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
+	
+	/*
+	 * Combat Interface
+	 */
+	
+	UPROPERTY(EditAnywhere , Category = "Combat")
+	TArray<FTaggedMontage> AttackMontages;
+	
+	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) const override;
+	
+	virtual bool IsDead_Implementation() const override;
+	
+	virtual AActor* GetAvatar_Implementation() override;
+	
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	
+	virtual TArray<FTaggedMontage> GetTaggedMontages_Implementation() const override;
+    	
+	virtual void Die() override;
+	
+	/*
+	 * Combat Interface
+	 */
 protected:
 	
-	virtual void BeginPlay() override;
-	
-	UPROPERTY(EditAnywhere,Category = "Combat")
+	UPROPERTY(EditAnywhere, BLueprintReadOnly ,Category = "Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName WeaponTipSocketName;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName LeftHandSocketName;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName RightHandSocketName;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Motion Warping")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
@@ -101,5 +127,7 @@ private:
 	TObjectPtr<UAnimMontage> HitReactMontage;
 	
 	bool bCombating;
+	
+	bool bDead = false;
 	
 };

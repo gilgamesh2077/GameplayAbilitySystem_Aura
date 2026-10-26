@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 #pragma once
 
@@ -28,6 +28,9 @@ public:
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+	float LifeSpan = 15.f;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UFUNCTION()
@@ -35,9 +38,6 @@ protected:
 	
 	
 private:
-	
-	UPROPERTY(EditDefaultsOnly)
-	float LifeSpan = 15.f;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> Sphere;

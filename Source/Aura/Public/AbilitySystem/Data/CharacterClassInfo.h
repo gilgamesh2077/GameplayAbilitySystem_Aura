@@ -25,7 +25,7 @@ struct FCharacterClassDefaultInfo
 	TSubclassOf<UGameplayEffect> PrimaryAttributes;
 	
 	UPROPERTY(EditDefaultsOnly,Category  = "Class Defaults")
-	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;//角色特有技能
 };
 
 /**
@@ -46,7 +46,7 @@ public:
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 	
 	UPROPERTY(EditDefaultsOnly,Category  = "Class Defaults")
-	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
+	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;//职业公用技能
 	
 	UPROPERTY(EditDefaultsOnly,Category  = "Class Defaults|Damage")
 	TObjectPtr<UCurveTable> DamageCalculationCoefficients;

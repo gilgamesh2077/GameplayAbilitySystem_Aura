@@ -202,6 +202,13 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 					const bool bBlock = UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContext);
 					const bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContext);
 					PC->ShowDamageNumber(LocalIncomingDamage,Props.TargetCharacter ,bBlock,bCriticalHit);
+					return;
+				}
+				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.TargetController))
+				{
+					const bool bBlock = UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContext);
+					const bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContext);
+					PC->ShowDamageNumber(LocalIncomingDamage,Props.TargetCharacter ,bBlock,bCriticalHit);
 				}
 			}
 		}
