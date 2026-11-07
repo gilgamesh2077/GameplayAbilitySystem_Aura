@@ -7,6 +7,7 @@
 #include "UObject/Interface.h"
 #include "CombatInterface.generated.h"
 
+class UNiagaraSystem;
 class UAnimMontage;
 
 USTRUCT(BlueprintType)
@@ -19,6 +20,12 @@ struct FTaggedMontage
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag MontageTag;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag SocketTag;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* ImpactSound = nullptr;
 };
 
 // This class does not need to be modified.
@@ -43,7 +50,7 @@ public:
 	int32 GetAuraCharacterLevel() const;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	FVector GetCombatSocketLocation(const FGameplayTag& MontageTag) const;
+	FVector GetCombatSocketLocation(const FGameplayTag& CombatSocketTag) const;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsPlayer() const;
@@ -66,4 +73,19 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
 	TArray<FTaggedMontage> GetTaggedMontages() const ;
+	
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
+	UNiagaraSystem* GetBloodEffect();
+	
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
+	FTaggedMontage GetTaggedMontageByTag(const FGameplayTag& MontageTag) ;
+	
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
+	int32  GetMinionsCount();
+	
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
+	void  SetMinionsCount(int32 Count);
+	
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
+	void  SetMaster(AActor* InMaster);
 };

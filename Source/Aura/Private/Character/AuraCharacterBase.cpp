@@ -4,13 +4,13 @@
 #include "Character/AuraCharacterBase.h"
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemDebugHUD.h"
 #include "AuraGameplayTags.h"
 #include "GameplayEffectTypes.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Player/AuraPlayerController.h"
 #include "MotionWarpingComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
@@ -47,19 +47,24 @@ void AAuraCharacterBase::BeginPlay()
 FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) const
 {
 	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Weapon) && IsValid(Weapon))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Weapon) && IsValid(Weapon))
 	{
 		return Weapon -> GetSocketLocation(WeaponTipSocketName);
 	}
 	
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_LeftHand))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_LeftHand))
 	{
 		return GetMesh()->GetSocketLocation(LeftHandSocketName);
 	}
 	
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_RightHand))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_RightHand))
 	{
 		return GetMesh()-> GetSocketLocation(RightHandSocketName);
+	}
+	
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Tail))
+	{
+		return GetMesh()-> GetSocketLocation(TailSocketName);
 	}
 	
 	if (GEngine)
@@ -116,6 +121,15 @@ UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
 	return HitReactMontage;	
 }
 
+FTaggedMontage AAuraCharacterBase::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
+{
+	for (FTaggedMontage TaggedMontage : AttackMontages)
+	{
+		if (TaggedMontage.MontageTag == MontageTag) return TaggedMontage;
+	}
+	return FTaggedMontage();
+}
+
 TArray<FTaggedMontage> AAuraCharacterBase::GetTaggedMontages_Implementation() const
 {
 	return AttackMontages;
@@ -123,13 +137,47 @@ TArray<FTaggedMontage> AAuraCharacterBase::GetTaggedMontages_Implementation() co
 
 void AAuraCharacterBase::Die()
 {
+	if (bDead)
+	{
+		return; // 已死亡：防止重复处理，也避免重复扣减 master 的随从计数
+	}
+
+	// 若自身是被召唤出的随从，死亡时通知 master 更新其拥有的随从数量
+	if (Master.IsValid())
+	{
+		Execute_SetMinionsCount(Master.Get(),FMath::Max(0,Execute_GetMinionsCount(Master.Get()) - 1));
+	}
+
 	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld,true));
 	MulticastHandleDeath();
+}
+
+UNiagaraSystem* AAuraCharacterBase::GetBloodEffect_Implementation()
+{
+	return BloodEffect;
+}
+
+int32 AAuraCharacterBase::GetMinionsCount_Implementation()
+{
+	return MinionsCount;
+}
+
+void AAuraCharacterBase::SetMinionsCount_Implementation(int32 Count)
+{
+	MinionsCount = Count;
+}
+
+void AAuraCharacterBase::SetMaster_Implementation(AActor* InMaster)
+{
+	Master = Cast<AAuraCharacterBase>(InMaster);
 }
 
 
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
+	
+	UGameplayStatics::PlaySoundAtLocation(this,DeathSound,GetActorLocation());
+	
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -189,6 +237,5 @@ void AAuraCharacterBase::Dissolve()
 		StartWeaponDissolveTimeline(DynamicMatInst);
 	}
 }
-
 
 

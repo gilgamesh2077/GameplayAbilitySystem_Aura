@@ -86,6 +86,7 @@ void AAuraEnemy::InitializeDefaultAttributes() const
 
 AAuraEnemy::AAuraEnemy()
 {
+	PrimaryActorTick.bCanEverTick = true;
 
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
 
@@ -102,6 +103,8 @@ AAuraEnemy::AAuraEnemy()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	// 让 AI 持续朝向目标时转动平滑（而不是瞬间摆头）
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f);
 	
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 	
@@ -128,7 +131,8 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	*GetNameSafe(AuraAIController->BrainComponent));
 	
 	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),false);
-	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),CharacterClass != ECharacterClass::Warrior);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),CharacterClass == ECharacterClass::Ranger);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("ElementalistAttacker"),CharacterClass == ECharacterClass::Elementalist);
 }
 
 void AAuraEnemy::HighlightActor()
@@ -180,5 +184,52 @@ bool AAuraEnemy::IsPlayer_Implementation() const
 void AAuraEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
+	if (AuraAIController) AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	Super::Die();
+}
+
+void AAuraEnemy::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// 死亡或受击硬直时不强制转头
+	if (IsDead_Implementation() || bHitReacting)
+	{
+		return;
+	}
+	
+	AActor* Target = GetFacingTarget();
+	AActor* CurrentFocus = nullptr;
+	if (AuraAIController)
+	{
+		CurrentFocus = AuraAIController->GetFocusActor();
+	}
+	
+
+	if (IsValid(Target) && AuraAIController)
+	{
+		if (CurrentFocus != Target)
+		{
+			// 借助 bUseControllerDesiredRotation，让敌人持续平滑地朝向玩家，
+			// 攻击瞬间就不再需要运动扭曲硬掰朝向。
+			AuraAIController->SetFocus(Target);
+		}
+	}
+	else if (CurrentFocus)
+	{
+		AuraAIController->ClearFocus(EAIFocusPriority::Gameplay);
+	}
+}
+
+AActor* AAuraEnemy::GetFacingTarget() const
+{
+	if (!AuraAIController) return nullptr;
+	
+	if (AActor* Target = Cast<AActor>(AuraAIController->GetBlackboardComponent()->GetValueAsObject(FName("TargetToFollow"))))
+	{
+		return Target;
+	}
+	
+
+	return CombatTarget && IsValid(CombatTarget.Get()) ? CombatTarget.Get() : nullptr;
 }

@@ -31,6 +31,8 @@ protected:
 public:
 	virtual void BeginPlay() override;	
 	
+	virtual void Tick(float DeltaSeconds) override;
+	
 	AAuraEnemy();
 	
 	virtual void PossessedBy(AController* NewController) override;
@@ -76,6 +78,9 @@ public:
 	UPROPERTY(BlueprintReadOnly ,Category = "Combat")
 	TObjectPtr<AActor> CombatTarget;
 protected:
+	
+	/* 返回敌人当前应朝向的目标（优先黑名单 TargetToFollow，回退到 CombatTarget） */
+	AActor* GetFacingTarget() const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly , Category = "Character Class Defaults")
 	int32 Level = 1;

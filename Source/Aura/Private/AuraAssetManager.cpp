@@ -1,6 +1,6 @@
 // See you in the battle
 
-#include "AbilitySystem/AuraAssetManager.h"
+#include "AuraAssetManager.h"
 #include "AbilitySystemGlobals.h"
 #include "AuraGameplayTags.h"
 #include "Engine/Engine.h"

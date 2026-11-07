@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 #pragma once
 
@@ -59,15 +59,30 @@ public:
 	
 	//Attack
 	FGameplayTag Abilities_Attack;
+	FGameplayTag Abilities_Summon;
 	
-	//Montage
-	FGameplayTag Montage_Attack_Weapon;
-	FGameplayTag Montage_Attack_RightHand;
-	FGameplayTag Montage_Attack_LeftHand;
+	//Cooldown
+	FGameplayTag Cooldown_Summon;
+	
+	//CombatSocket
+	FGameplayTag CombatSocket_Weapon;
+	FGameplayTag CombatSocket_RightHand;
+	FGameplayTag CombatSocket_LeftHand;
+	FGameplayTag CombatSocket_Tail;
+	
+	//MontageAttackTag
+	
+	FGameplayTag Montage_Attack_1;
+	FGameplayTag Montage_Attack_2;
+	FGameplayTag Montage_Attack_3;
+	FGameplayTag Montage_Attack_4;
 	
 	TMap<FGameplayTag , FGameplayTag> DamageTypesToResistances;
 	
 	FGameplayTag Effects_HitReact;
+	
+	//Status
+	FGameplayTag Status_Invulnerable;
 	
 	//Ability
 	FGameplayTag Abilities_Combo;

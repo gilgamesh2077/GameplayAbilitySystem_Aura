@@ -107,6 +107,13 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
+
+	// 无敌：目标带有 Status.Invulnerable 标签时直接返回，不结算任何伤害
+	if (TargetTags && TargetTags->HasTag(FAuraGameplayTags::Get().Status_Invulnerable))
+	{
+		return;
+	}
+
 	FAggregatorEvaluateParameters EvaluationParameters;
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;

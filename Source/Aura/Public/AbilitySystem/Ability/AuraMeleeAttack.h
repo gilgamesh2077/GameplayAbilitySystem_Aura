@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 #pragma once
 

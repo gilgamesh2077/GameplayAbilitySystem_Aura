@@ -7,7 +7,7 @@
 #include "ProjectileSpell.generated.h"
 
 class AAuraProjectile;
-
+struct FGameplayTag;
 /**
  * 投射物法术基类：只负责"朝一个瞄准点发射投射物"，并把伤害 Spec 交给投射物。
  * 瞄准点从哪来由子类决定（玩家 = 鼠标，敌人 = CombatTarget）。
@@ -22,5 +22,5 @@ protected:
 	TSubclassOf<AAuraProjectile> ProjectileClass;
 	
 	UFUNCTION(BlueprintCallable , BlueprintNativeEvent)
-	void SpawnProjectile(FVector AimLocation);
+	void SpawnProjectile(FVector AimLocation ,const struct FGameplayTag SocketTag);
 };

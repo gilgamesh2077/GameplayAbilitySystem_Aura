@@ -8,6 +8,7 @@
 #include "Interaction/CombatInterface.h"
 #include "AuraCharacterBase.generated.h"
 
+class UNiagaraSystem;
 class UGameplayAbility;
 class UAbilitySystemComponent;
 class UAttributeSet;
@@ -40,6 +41,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
 	
+	UPROPERTY()
+	TWeakObjectPtr<AAuraCharacterBase> Master;
 	/*
 	 * Combat Interface
 	 */
@@ -55,10 +58,19 @@ public:
 	
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	
+	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
+	
 	virtual TArray<FTaggedMontage> GetTaggedMontages_Implementation() const override;
     	
 	virtual void Die() override;
 	
+	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
+
+	virtual int32 GetMinionsCount_Implementation() override;
+	
+	virtual void SetMinionsCount_Implementation(int32 Count) override;
+	
+	virtual void SetMaster_Implementation(AActor* InMaster) override;
 	/*
 	 * Combat Interface
 	 */
@@ -75,6 +87,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName RightHandSocketName;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName TailSocketName;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Motion Warping")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
@@ -113,11 +128,20 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstaceDynamic);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UMaterialInstance> DissolveMaterialInstance;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly , Category = "Combat")
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly , Category = "Combat")
+	UNiagaraSystem* BloodEffect;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly , Category = "Combat")
+	USoundBase* DeathSound;
+	
+	
+	
 private:
 	
 	UPROPERTY(EditAnywhere,Category="Abilities")
@@ -130,4 +154,6 @@ private:
 	
 	bool bDead = false;
 	
+	// Minions
+	int32 MinionsCount = 0;
 };

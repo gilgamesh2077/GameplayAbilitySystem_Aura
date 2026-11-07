@@ -176,6 +176,7 @@ const FComboAttackSectionSettings* UAuraProjectileSpell::GetCurrentComboSectionS
 	return ComboSections.IsValidIndex(CurrentComboSectionIndex) ? &ComboSections[CurrentComboSectionIndex] : nullptr;
 }
 
+
 void UAuraProjectileSpell::HandleTargetDataUnderMouse(const FGameplayAbilityTargetDataHandle& DataHandle)
 {
 	if (DataHandle.IsValid(0))
@@ -209,7 +210,7 @@ void UAuraProjectileSpell::HandleMontageCancelled()
 void UAuraProjectileSpell::HandleMontageEvent(FGameplayEventData Payload)
 {
 	if (ProjectileTargetLocation == FVector()) return;
-	SpawnProjectile(ProjectileTargetLocation);
+	SpawnProjectile(ProjectileTargetLocation ,FAuraGameplayTags::Get().CombatSocket_Weapon);
 }
 
 void UAuraProjectileSpell::HandleComboWindowClosed(FGameplayEventData Payload)
@@ -284,11 +285,37 @@ void UAuraProjectileSpell::HandleComboInputPressed(float TimeWaited)
 {
 	ComboInputTask = nullptr;
 
-	QueueNextComboSection();
+	if (!QueueNextComboSection() && !IsComboAttackWindowOpen())
+	{
+		// 连击窗口已关闭（处于攻击后摇）：用攻击打断后摇，立即从第一段重新开始。
+		RestartCombo();
+	}
+
 	RequestTargetData();
 
 	if (IsActive())
 	{
 		WaitForComboInput();
 	}
+}
+
+void UAuraProjectileSpell::RestartCombo()
+{
+	if (!IsActive() || !AttackMontage || ComboSections.IsEmpty()) return;
+
+	USkeletalMeshComponent* Mesh = GetAvatarActorFromActorInfo()
+		? GetAvatarActorFromActorInfo()->FindComponentByClass<USkeletalMeshComponent>()
+		: nullptr;
+	UAnimInstance* AnimInstance = Mesh ? Mesh->GetAnimInstance() : nullptr;
+	if (!AnimInstance) return;
+
+	CurrentComboSectionIndex = 0;
+	QueuedComboSectionIndex = INDEX_NONE;
+	ProjectileTargetLocation = FVector::ZeroVector;
+
+	UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if (!ASC) return;
+
+	ASC->ResetComboAttackWindow();
+	ASC->CurrentMontageJumpToSection(ComboSections[0].SectionName);
 }

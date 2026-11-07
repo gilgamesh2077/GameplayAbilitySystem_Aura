@@ -72,6 +72,7 @@ protected:
 	void HandleComboWindowClosed(FGameplayEventData Payload);
 
 	bool QueueNextComboSection();
+	void RestartCombo();
 	bool IsComboAttackWindowOpen() const;
 	const FComboAttackSectionSettings* GetCurrentComboSectionSettings() const;
 	void ResetComboState();

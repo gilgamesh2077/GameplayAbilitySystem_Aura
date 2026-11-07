@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 
 #include "AuraGameplayTags.h"
@@ -66,12 +66,22 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Physical,GameplayTags.Attributes_Resistance_Physical);
 	
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"),FString("Effects of HitReact"));
+	GameplayTags.Status_Invulnerable = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Status.Invulnerable"),FString("Invulnerable: takes no damage"));
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Attack"),FString("Attack Abilities Tag"));
+	GameplayTags.Abilities_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Summon"),FString("Summon Abilities Tag"));
+	GameplayTags.Cooldown_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Summon"),FString("Summon Ability Cooldown Tag"));
 	
-	//Montage
-	GameplayTags.Montage_Attack_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.Weapon"),FString("Montage Attack Weapon Tag"));
-	GameplayTags.Montage_Attack_RightHand= UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.RightHand"),FString("Montage Attack RightHand Tag"));
-	GameplayTags.Montage_Attack_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.LeftHand"),FString("Montage Attack LeftHand Tag"));
+	//CombatSocket
+	GameplayTags.CombatSocket_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.Weapon"),FString("CombatSocket Weapon Tag"));
+	GameplayTags.CombatSocket_RightHand= UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.RightHand"),FString("CombatSocket RightHand Tag"));
+	GameplayTags.CombatSocket_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.LeftHand"),FString("CombatSocket LeftHand Tag"));
+	GameplayTags.CombatSocket_Tail = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.Tail"),FString("CombatSocket Tail Tag"));
+	
+	//MontageAttack
+	GameplayTags.Montage_Attack_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.1"),FString("Attack 1"));
+	GameplayTags.Montage_Attack_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.2"),FString("Attack 2"));
+	GameplayTags.Montage_Attack_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.3"),FString("Attack 3"));
+	GameplayTags.Montage_Attack_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.4"),FString("Attack 4"));
 	
 	GameplayTags.Abilities_Combo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Combo"),FString("Three-stage combo attack that movement can cancel"));
 	GameplayTags.Event_Montage_ComboWindowClosed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.ComboWindowClosed"),FString("Combo attack window closed"));

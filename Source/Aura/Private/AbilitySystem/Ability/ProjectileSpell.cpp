@@ -10,7 +10,7 @@
 #include "Interaction/CombatInterface.h"
 #include "Actor/AuraProjectile.h"
 
-void UProjectileSpell::SpawnProjectile_Implementation(FVector AimLocation)
+void UProjectileSpell::SpawnProjectile_Implementation(FVector AimLocation ,const struct FGameplayTag SocketTag)
 {
 	if (!HasAuthority(&CurrentActivationInfo) || !ProjectileClass) return;
 
@@ -23,7 +23,7 @@ void UProjectileSpell::SpawnProjectile_Implementation(FVector AimLocation)
 
 	const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(
 		AvatarActor,
-		FAuraGameplayTags::Get().Montage_Attack_Weapon);
+		SocketTag);
 
 	FTransform SpawnTransform;
 	AimLocation.Z = SocketLocation.Z;
