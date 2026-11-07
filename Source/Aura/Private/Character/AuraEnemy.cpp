@@ -122,6 +122,13 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	AuraAIController = Cast<AAuraAIController>(NewController);
 	
 	AuraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	
+	// 先写黑板键，再启动行为树：避免行为树首帧读到这些键的默认值(false)后不再重估
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),false);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),CharacterClass == ECharacterClass::Ranger);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("ElementalistAttacker"),CharacterClass == ECharacterClass::Elementalist);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RemoteAttacker"),CharacterClass != ECharacterClass::Warrior);
+	
 	const bool bStarted = AuraAIController->RunBehaviorTree(BehaviorTree);
 	
 	UE_LOG(LogTemp, Warning,
@@ -129,10 +136,6 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	bStarted ? TEXT("Success") : TEXT("Failed"),
 	*GetNameSafe(BehaviorTree),
 	*GetNameSafe(AuraAIController->BrainComponent));
-	
-	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),false);
-	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),CharacterClass == ECharacterClass::Ranger);
-	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("ElementalistAttacker"),CharacterClass == ECharacterClass::Elementalist);
 }
 
 void AAuraEnemy::HighlightActor()
