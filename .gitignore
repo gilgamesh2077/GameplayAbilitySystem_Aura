@@ -11,6 +11,7 @@ Docs/
 NoteBook/
 Asset/
 UE_Import/
+.acl-recovery/
 
 # VS - generated
 *.sln

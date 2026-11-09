@@ -9,7 +9,6 @@
 #include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
 #include "UI/HUD/AuraHUD.h"
-#include "AuraGameplayTags.h"
 
 AAuraCharacter::AAuraCharacter()
 {

@@ -67,9 +67,14 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"),FString("Effects of HitReact"));
 	GameplayTags.Status_Invulnerable = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Status.Invulnerable"),FString("Invulnerable: takes no damage"));
+	
+	//Cooldown
+	GameplayTags.Cooldown_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Summon"),FString("Summon Ability Cooldown Tag"));
+	
+	//Abilities
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Attack"),FString("Attack Abilities Tag"));
 	GameplayTags.Abilities_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Summon"),FString("Summon Abilities Tag"));
-	GameplayTags.Cooldown_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Summon"),FString("Summon Ability Cooldown Tag"));
+	GameplayTags.Abilities_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Fire.FireBolt"),FString("FireBolt Abilities Tag"));
 	
 	//CombatSocket
 	GameplayTags.CombatSocket_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.Weapon"),FString("CombatSocket Weapon Tag"));
@@ -83,7 +88,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Montage_Attack_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.3"),FString("Attack 3"));
 	GameplayTags.Montage_Attack_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Montage.Attack.4"),FString("Attack 4"));
 	
-	GameplayTags.Abilities_Combo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Combo"),FString("Three-stage combo attack that movement can cancel"));
+	GameplayTags.Combo = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Combo"),FString("Three-stage combo attack that movement can cancel"));
 	GameplayTags.Event_Montage_ComboWindowClosed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.ComboWindowClosed"),FString("Combo attack window closed"));
 
 }

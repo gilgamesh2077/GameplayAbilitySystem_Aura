@@ -22,7 +22,7 @@ UAuraProjectileSpell::UAuraProjectileSpell()
 
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
-	SetAssetTags(FGameplayTagContainer(FAuraGameplayTags::Get().Abilities_Combo));
+	SetAssetTags(FGameplayTagContainer(FAuraGameplayTags::Get().Combo));
 	ComboSections = {
 		{ TEXT("Attack1") },
 		{ TEXT("Attack2") },

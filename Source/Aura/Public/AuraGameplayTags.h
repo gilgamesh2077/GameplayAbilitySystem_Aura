@@ -57,9 +57,10 @@ public:
 	FGameplayTag Damage_Arcane;
 	FGameplayTag Damage_Physical;
 	
-	//Attack
+	//Abilities
 	FGameplayTag Abilities_Attack;
 	FGameplayTag Abilities_Summon;
+	FGameplayTag Abilities_Fire_FireBolt;
 	
 	//Cooldown
 	FGameplayTag Cooldown_Summon;
@@ -84,8 +85,8 @@ public:
 	//Status
 	FGameplayTag Status_Invulnerable;
 	
-	//Ability
-	FGameplayTag Abilities_Combo;
+	//combo
+	FGameplayTag Combo;
 	FGameplayTag Event_Montage_ComboWindowClosed;
 
 private:

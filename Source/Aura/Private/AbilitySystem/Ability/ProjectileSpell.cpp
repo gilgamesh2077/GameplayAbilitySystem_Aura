@@ -26,9 +26,7 @@ void UProjectileSpell::SpawnProjectile_Implementation(FVector AimLocation ,const
 		SocketTag);
 
 	FTransform SpawnTransform;
-	AimLocation.Z = SocketLocation.Z;
 	FRotator Rotation = (AimLocation - SocketLocation).Rotation();
-	Rotation.Pitch = 0.0f;
 	SpawnTransform.SetRotation(Rotation.Quaternion());
 	SpawnTransform.SetLocation(SocketLocation);
 
