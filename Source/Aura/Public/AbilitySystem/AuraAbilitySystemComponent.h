@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 #pragma once
 
@@ -43,6 +43,9 @@ public:
 	void EndComboAttackWindow();
 	void ResetComboAttackWindow();
 	bool IsComboAttackWindowOpen() const;
+	// 本段火球是否已经出手：只有出手后才允许用移动打断当前连击
+	void SetComboAttackInterruptible(bool bInterruptible);
+	bool IsComboAttackInterruptible() const;
 protected:
 	
 	
@@ -60,4 +63,5 @@ public:
 
 private:
 	int32 ComboAttackWindowDepth = 0;
+	bool bComboAttackInterruptible = false;
 };

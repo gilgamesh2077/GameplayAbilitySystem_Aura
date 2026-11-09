@@ -70,6 +70,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	
 	//Cooldown
 	GameplayTags.Cooldown_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Summon"),FString("Summon Ability Cooldown Tag"));
+	GameplayTags.Cooldown_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Fire.FireBolt"),FString("FireBolt Ability Cooldown Tag"));
 	
 	//Abilities
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Attack"),FString("Attack Abilities Tag"));

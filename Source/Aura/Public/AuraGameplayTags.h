@@ -64,6 +64,7 @@ public:
 	
 	//Cooldown
 	FGameplayTag Cooldown_Summon;
+	FGameplayTag Cooldown_Fire_FireBolt;
 	
 	//CombatSocket
 	FGameplayTag CombatSocket_Weapon;

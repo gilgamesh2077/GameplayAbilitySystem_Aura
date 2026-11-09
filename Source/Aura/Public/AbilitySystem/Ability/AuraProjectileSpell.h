@@ -38,6 +38,8 @@ private:
 	                             const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                        const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	                           const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
 
 protected:
@@ -72,7 +74,7 @@ protected:
 	void HandleComboWindowClosed(FGameplayEventData Payload);
 
 	bool QueueNextComboSection();
-	void RestartCombo();
+	void FinishComboChain();
 	bool IsComboAttackWindowOpen() const;
 	const FComboAttackSectionSettings* GetCurrentComboSectionSettings() const;
 	void ResetComboState();

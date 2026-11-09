@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 
 #include "Player/AuraPlayerController.h"
@@ -43,12 +43,20 @@ void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount ,
 void AAuraPlayerController::AutoRun()
 {
 	if (!bAutoRunning)return;
-	if (GetASC() && GetASC()->IsComboAttackWindowOpen())
+	
+	if (bAttacking)
 	{
-		bAutoRunning = false;
-		return;
+		UAuraAbilitySystemComponent* ASC = GetASC();
+		if (ASC && ASC->IsComboAttackInterruptible())
+		{
+			CancelComboAttackForMovement();
+		}
+		else
+		{
+			return;
+		}
 	}
-	CancelComboAttackForMovement();
+	
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(),ESplineCoordinateSpace::World);
@@ -129,7 +137,8 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	
 	if (!bTargeting && !bShiftKeyDown)
 	{
-		if (GetASC() && GetASC()->IsComboAttackWindowOpen()) return;
+		// 火球未出手时锁定点地移动，出手后才允许点击地面打断连击。
+		if (bAttacking && GetASC() && !GetASC()->IsComboAttackInterruptible()) return;
 
 		const APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreshold && ControlledPawn) //鼠标点击移动
@@ -176,9 +185,20 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	}
 	else
 	{
-		if (GetASC() && GetASC()->IsComboAttackWindowOpen()) return;
-
-		CancelComboAttackForMovement();
+		
+		if (bAttacking)
+		{
+			UAuraAbilitySystemComponent* ASC = GetASC();
+			if (ASC && ASC->IsComboAttackInterruptible())
+			{
+				CancelComboAttackForMovement();
+			}
+			else
+			{
+				return;
+			}
+		}
+		
 		FollowTime += GetWorld()->GetDeltaSeconds();
 		
 		if (CursorHit.bBlockingHit)
@@ -240,13 +260,18 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 {
 	bAutoRunning = false;
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
-	if (!InputAxisVector.IsNearlyZero() && bAttacking)
+	if (InputAxisVector.IsNearlyZero()) return;
+	if (bAttacking)
 	{
-		if (GetASC() && !GetASC()->IsComboAttackWindowOpen())
+		UAuraAbilitySystemComponent* ASC = GetASC();
+		if (ASC && ASC->IsComboAttackInterruptible())
 		{
 			CancelComboAttackForMovement();
 		}
-		else return;
+		else
+		{
+			return;
+		}
 	}
 	const FRotator YawRotation (0.f,GetControlRotation().Yaw,0.f);
 	
@@ -263,7 +288,7 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 void AAuraPlayerController::CancelComboAttackForMovement()
 {
 	UAuraAbilitySystemComponent* ASC = GetASC();
-	if (ASC && !ASC->IsComboAttackWindowOpen())
+	if (ASC)
 	{
 		ASC->CancelComboAttackAbilities();
 	}

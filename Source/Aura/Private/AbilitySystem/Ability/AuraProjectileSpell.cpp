@@ -60,7 +60,10 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	}
 
 	// —— 以下为玩家逻辑 ——
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	// 连击属于同一次技能：起手只检查并扣除消耗。冷却由整段连击共享，
+	// 在连击真正结束（FinishComboChain）时才提交，避免冷却从 Attack1 起手就被消耗掉。
+	// 冷却期间的拦截仍由激活阶段的 CanActivateAbility → CheckCooldown 完成。
+	if (!CommitAbilityCost(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
@@ -138,6 +141,20 @@ void UAuraProjectileSpell::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
+void UAuraProjectileSpell::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+                                         const FGameplayAbilityActorInfo* ActorInfo,
+                                         const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	// 移动等取消操作同样要消耗整段连击共享的冷却：能力还处于激活状态时先提交冷却，
+	// 再交给父类执行正常的取消 → EndAbility 流程。
+	if (IsActive() && CanBeCanceled())
+	{
+		CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
+	}
+
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
 
 bool UAuraProjectileSpell::QueueNextComboSection()
 {
@@ -199,7 +216,8 @@ void UAuraProjectileSpell::HandleTargetDataUnderMouse(const FGameplayAbilityTarg
 
 void UAuraProjectileSpell::HandleMontageCompleted()
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	// 蒙太奇自然播完（没有窗口可接续时走窗口关闭分支）：整段连击结束。
+	FinishComboChain();
 }
 
 void UAuraProjectileSpell::HandleMontageCancelled()
@@ -209,23 +227,36 @@ void UAuraProjectileSpell::HandleMontageCancelled()
 
 void UAuraProjectileSpell::HandleMontageEvent(FGameplayEventData Payload)
 {
+	// 本段的火球已经出手：从这一刻起才允许用移动打断当前连击。
+	// 在此之前移动输入会被锁定，保证挥砍前摇不会被打断。
+	if (UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo()))
+	{
+		ASC->SetComboAttackInterruptible(true);
+	}
+
 	if (ProjectileTargetLocation == FVector()) return;
 	SpawnProjectile(ProjectileTargetLocation ,FAuraGameplayTags::Get().CombatSocket_Weapon);
 }
 
 void UAuraProjectileSpell::HandleComboWindowClosed(FGameplayEventData Payload)
 {
-	CurrentComboSectionIndex = QueuedComboSectionIndex;
+	const int32 NextComboSectionIndex = QueuedComboSectionIndex;
 	QueuedComboSectionIndex = INDEX_NONE;
 
-	if (!ComboSections.IsValidIndex(CurrentComboSectionIndex))
+	if (!ComboSections.IsValidIndex(NextComboSectionIndex))
 	{
+		// 没有接上下一段：不结束能力，也不重播第一段。
+		// 让当前段把收招（后摇）播完；因为本段火球已经出手，这段时间里移动输入
+		// 可以通过 CancelAbility 打断（并提交共享冷却）。播完后由 OnCompleted 收尾。
 		return;
 	}
 
-	if (UAbilitySystemComponent* ASC =
-		GetAbilitySystemComponentFromActorInfo())
+	CurrentComboSectionIndex = NextComboSectionIndex;
+
+	if (UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo()))
 	{
+		// 进入下一段后重新锁定移动，直到该段自己的火球出手。
+		ASC->SetComboAttackInterruptible(false);
 		ASC->CurrentMontageJumpToSection(ComboSections[CurrentComboSectionIndex].SectionName);
 	}
 }
@@ -248,7 +279,9 @@ void UAuraProjectileSpell::ResetComboState()
 	}
 	if (MontageTask)
 	{
-		MontageTask->EndTask();
+		// 不要在这里手动 EndTask：UGameplayTask::EndTask 走的是 OnDestroy(false)，
+		// PlayMontageAndWait 不会执行 StopPlayingMontage，蒙太奇会在能力结束后继续播放。
+		// 保留给 Super::EndAbility 的 TaskOwnerEnded → OnDestroy(true) 去停蒙太奇。
 		MontageTask = nullptr;
 	}
 	if (TargetDataUnderMouseTask)
@@ -285,11 +318,9 @@ void UAuraProjectileSpell::HandleComboInputPressed(float TimeWaited)
 {
 	ComboInputTask = nullptr;
 
-	if (!QueueNextComboSection() && !IsComboAttackWindowOpen())
-	{
-		// 连击窗口已关闭（处于攻击后摇）：用攻击打断后摇，立即从第一段重新开始。
-		RestartCombo();
-	}
+	// 只有连击窗口内的输入才会排队下一段；窗口外（前摇/后摇）的输入一律忽略。
+	// 连段没能接上时由窗口关闭事件直接结束能力，下一次输入会重新激活技能并重新走冷却检查。
+	QueueNextComboSection();
 
 	RequestTargetData();
 
@@ -299,23 +330,18 @@ void UAuraProjectileSpell::HandleComboInputPressed(float TimeWaited)
 	}
 }
 
-void UAuraProjectileSpell::RestartCombo()
+void UAuraProjectileSpell::FinishComboChain()
 {
-	if (!IsActive() || !AttackMontage || ComboSections.IsEmpty()) return;
+	if (!IsActive())
+	{
+		return;
+	}
 
-	USkeletalMeshComponent* Mesh = GetAvatarActorFromActorInfo()
-		? GetAvatarActorFromActorInfo()->FindComponentByClass<USkeletalMeshComponent>()
-		: nullptr;
-	UAnimInstance* AnimInstance = Mesh ? Mesh->GetAnimInstance() : nullptr;
-	if (!AnimInstance) return;
+	// 整段连击（Attack1 → Attack2 → Attack3）共用同一份冷却：只在连击真正结束时
+	// 提交一次。ForceCooldown = true，跳过 CheckCooldown，避免旧冷却标签让本次提交失败。
+	CommitAbilityCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 
-	CurrentComboSectionIndex = 0;
-	QueuedComboSectionIndex = INDEX_NONE;
-	ProjectileTargetLocation = FVector::ZeroVector;
-
-	UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
-	if (!ASC) return;
-
-	ASC->ResetComboAttackWindow();
-	ASC->CurrentMontageJumpToSection(ComboSections[0].SectionName);
+	// 结束能力：ResetComboState 会停掉蒙太奇与所有监听任务。
+	// 下一次攻击输入会重新 TryActivateAbility，届时才由 CanActivateAbility → CheckCooldown 拦截。
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

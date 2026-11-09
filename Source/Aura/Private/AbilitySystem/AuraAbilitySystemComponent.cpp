@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
@@ -177,11 +177,22 @@ void UAuraAbilitySystemComponent::EndComboAttackWindow()
 void UAuraAbilitySystemComponent::ResetComboAttackWindow()
 {
 	ComboAttackWindowDepth = 0;
+	bComboAttackInterruptible = false;
 }
 
 bool UAuraAbilitySystemComponent::IsComboAttackWindowOpen() const
 {
 	return ComboAttackWindowDepth > 0;
+}
+
+void UAuraAbilitySystemComponent::SetComboAttackInterruptible(bool bInterruptible)
+{
+	bComboAttackInterruptible = bInterruptible;
+}
+
+bool UAuraAbilitySystemComponent::IsComboAttackInterruptible() const
+{
+	return bComboAttackInterruptible;
 }
 
 void UAuraAbilitySystemComponent::BeginPlay()
