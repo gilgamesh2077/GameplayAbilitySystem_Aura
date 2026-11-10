@@ -48,11 +48,6 @@ void AAuraEnemy::BeginPlay()
 			}
 		);
 		
-		AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Effects_HitReact,EGameplayTagEventType::NewOrRemoved).AddUObject(
-			this,
-			&AAuraEnemy::HitReactTagChanged
-		);
-		
 		float temp1 = AuraAS->GetMaxHealth();
 		float temp2 = AuraAS->GetHealth();
 		OnMaxHealthChanged.Broadcast(AuraAS->GetMaxHealth());
@@ -167,15 +162,19 @@ int32 AAuraEnemy::GetAuraCharacterLevel_Implementation() const
 	return Level;
 }
 
-void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+void AAuraEnemy::SetHitReacting_Implementation(bool bInHitReacting)
 {
-	bHitReacting = NewCount > 0;
+	// 受击状态只由受击技能的激活/EndAbility 驱动。用 bool 而不是 tag 计数：
+	// bool 天然幂等，重复置 true / 重复置 false 都不会卡在中间态，
+	// 也不会出现「计数从 2 掉到 1 但回调不触发」导致永久卡死。
+	bHitReacting = bInHitReacting;
+	
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+	
 	if (AuraAIController && AuraAIController->GetBlackboardComponent())
 	{
 		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),bHitReacting);
 	}
-	
 }
 
 bool AAuraEnemy::IsPlayer_Implementation() const
@@ -187,6 +186,11 @@ bool AAuraEnemy::IsPlayer_Implementation() const
 void AAuraEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
+	
+	// 死亡时强制清掉受击状态：即使受击技能因为被打断/随死亡销毁而没有走到 EndAbility，
+	// 也不会给尸体留下 bHitReacting=true、MaxWalkSpeed=0、黑板 HitReacting=true。
+	SetHitReacting_Implementation(false);
+	
 	if (AuraAIController) AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	Super::Die();
 }

@@ -2,6 +2,8 @@
 
 
 #include "AbilitySystem/Ability/AuraSummonAbility.h"
+#include "Algo/RandomShuffle.h"
+#include "Character/AuraCharacterBase.h"
 #include "Interaction/CombatInterface.h"
 
 
@@ -48,6 +50,8 @@ TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 	if (GetAvatarActorFromActorInfo()->Implements<UCombatInterface>()) ICombatInterface::Execute_SetMinionsCount(GetAvatarActorFromActorInfo(),
 		SpawnNum + ICombatInterface::Execute_GetMinionsCount(GetAvatarActorFromActorInfo()));
 	
+	Algo::RandomShuffle(SpawnLocations);
+	ShowSpawnIndicators(SpawnLocations);
 	return SpawnLocations;
 }
 
@@ -56,3 +60,12 @@ TSubclassOf<APawn> UAuraSummonAbility::GetRandomMinionClass()
 	const int32 Selection = FMath:: RandRange(0,MinionsClasses.Num()-1);
 	return MinionsClasses[Selection];
 }
+
+void UAuraSummonAbility::ShowSpawnIndicators(const TArray<FVector>& Locations)
+{
+	AAuraCharacterBase* AC = Cast<AAuraCharacterBase>(GetAvatarActorFromActorInfo());
+	if (!AC || !AC->HasAuthority()) return;
+	AC->Multicast_ShowSpawnIndicators(Locations,SpawnIndicatorsClass);
+}
+
+

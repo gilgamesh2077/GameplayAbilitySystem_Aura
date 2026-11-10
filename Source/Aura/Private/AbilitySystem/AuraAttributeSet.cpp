@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
+#include "Aura/AuraLogChannels.h"
 #include "Interaction/CombatInterface.h"
 #include "Player/AuraPlayerController.h"
 
@@ -189,8 +190,8 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			{
 				FGameplayTagContainer TagContainer;
 				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
-				Props.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
-				
+				const bool bActivated = Props.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+				UE_LOG(LogAura, Warning, TEXT("[HitReact] TryActivate = %s"), bActivated ? TEXT("true") : TEXT("false"));
 				
 			}
 			

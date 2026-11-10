@@ -6,6 +6,9 @@
 #include "AbilitySystem/Ability/AuraGameplayAbility.h"
 #include "AuraSummonAbility.generated.h"
 
+
+class UNiagaraSystem;
+
 /**
  * 
  */
@@ -25,6 +28,8 @@ public:
 	UFUNCTION(BlueprintCallable , Category = "Summoning")
 	TSubclassOf<APawn> GetRandomMinionClass();
 	
+	void ShowSpawnIndicators(const TArray<FVector>& Locations);
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")
 	int32 NumMinions = 5;
 	
@@ -40,5 +45,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")
 	float SpawnSpread = 90.f;
+	UPROPERTY(EditDefaultsOnly, Category= "Summoning")
+	UNiagaraSystem* SpawnIndicatorsClass;
 	
 };

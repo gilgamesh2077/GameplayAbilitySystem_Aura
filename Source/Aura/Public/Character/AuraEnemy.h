@@ -49,6 +49,8 @@ public:
 	virtual int32 GetAuraCharacterLevel_Implementation() const override;
 	
 	virtual void Die() override;
+	
+	virtual void SetHitReacting_Implementation(bool bInHitReacting) override;
 	/*End Combat Interface*/
 	
 	UPROPERTY(BlueprintAssignable)
@@ -56,8 +58,6 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnMaxHealthChanged;
-	
-	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	
 	virtual bool IsPlayer_Implementation() const override;
 	

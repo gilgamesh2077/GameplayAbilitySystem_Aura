@@ -63,6 +63,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
 	UAnimMontage* GetHitReactMontage();
 	
+	/**
+	 * 受击状态由受击技能自己的生命周期驱动：技能激活时传 true，EndAbility 时传 false。
+	 * 受击技能是所有敌人共用的蓝图资产，走接口调用可以避免蓝图去 Cast 具体敌人类型。
+	 */
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)
+	void SetHitReacting(bool bInHitReacting);
+	
 	virtual void Die() = 0;
 	
 	UFUNCTION(BlueprintNativeEvent , BlueprintCallable)

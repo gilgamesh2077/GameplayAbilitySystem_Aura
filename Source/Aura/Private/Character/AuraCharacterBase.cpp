@@ -10,6 +10,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Player/AuraPlayerController.h"
 #include "MotionWarpingComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Aura/AuraLogChannels.h"
 #include "Kismet/GameplayStatics.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
@@ -119,6 +121,11 @@ void AAuraCharacterBase::UpdateFacingRotationFromLocation_Implementation(const F
 UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
 {
 	return HitReactMontage;	
+}
+
+void AAuraCharacterBase::SetHitReacting_Implementation(bool bInHitReacting)
+{
+	// 基类默认不维护受击硬直状态（玩家不走这套），目前只有 AAuraEnemy 覆写
 }
 
 FTaggedMontage AAuraCharacterBase::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
@@ -235,6 +242,16 @@ void AAuraCharacterBase::Dissolve()
 		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance,this);
 		Weapon->SetMaterial(0,DynamicMatInst);
 		StartWeaponDissolveTimeline(DynamicMatInst);
+	}
+}
+
+void AAuraCharacterBase::Multicast_ShowSpawnIndicators_Implementation(const TArray<FVector>& Locations,
+	UNiagaraSystem* IndicatorSystem)
+{
+	if (!IndicatorSystem) { UE_LOG(LogAura, Warning, TEXT("%s: SpawnIndicator Niagara is null"), *GetName()); return; }
+	for (auto & Location: Locations)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,IndicatorSystem,Location);
 	}
 }
 

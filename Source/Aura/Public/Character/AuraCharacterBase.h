@@ -28,7 +28,8 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 	
-	
+	UFUNCTION(NetMulticast, Reliable)
+    	void Multicast_ShowSpawnIndicators(const TArray<FVector>& Locations, UNiagaraSystem* IndicatorSystem);
 	
 	virtual bool IsAttacking() const override;
 	
@@ -57,6 +58,8 @@ public:
 	virtual AActor* GetAvatar_Implementation() override;
 	
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	
+	virtual void SetHitReacting_Implementation(bool bInHitReacting) override;
 	
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	
@@ -127,6 +130,8 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstaceDynamic);
+	
+	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UMaterialInstance> DissolveMaterialInstance;
