@@ -7,6 +7,7 @@
 #include "GameplayTags.h"
 #include "OverlayWidgetController.generated.h"
 
+class ULevelUpInfo;
 class UAuraAbilitySystemComponent;
 class UAbilityInfo;
 struct FOnAttributeChangeData;
@@ -34,7 +35,6 @@ struct FUIWidgetRow : public FTableRowBase
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature,float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAuraAbilityInfo& ,Info);
-
 
 /**
  * 
@@ -65,6 +65,12 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category ="GAS|Message")
 	FAbilityInfoSignature AbilityInfoDelegate;
+	
+	UPROPERTY(BlueprintAssignable, Category ="GAS|XP")
+	FOnAttributeChangedSignature OnXPPercentChanged;
+	
+	UPROPERTY(BlueprintAssignable, Category ="GAS|Level")
+	FOnAttributeChangedSignature OnLevelChanged;
 protected:
 	
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly ,Category = "Widget Data")
@@ -73,7 +79,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly ,Category = "Widget Data")
 	TObjectPtr<UAbilityInfo> AbilityInfo;
 	
+	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly ,Category = "Widget Data")
+	TObjectPtr<ULevelUpInfo> LevelUpInfo;
+	
 	void OnInitializeStartupAbilities(UAuraAbilitySystemComponent* AuraAbilitySystemComponent);
+	
+	void OnXPChanged(int32 NewXP) const;
+	
+	void OnPlayerLevelChanged(int32 NewPlayerLevel) const;
+	
+	float GetXPBarPercentForXP(int32 XP) const;
 	
 	template<typename T>
 	static T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
