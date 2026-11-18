@@ -12,7 +12,6 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
-#include "Interaction/CombatInterface.h"
 
 
 // Sets default values

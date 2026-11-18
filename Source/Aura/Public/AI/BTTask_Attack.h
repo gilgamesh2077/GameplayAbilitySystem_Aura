@@ -39,7 +39,7 @@ protected:
 
 	// 元素使 minion 数量阈值：低于此值时召唤，达到后改回攻击
 	UPROPERTY(EditAnywhere, Category = "Attack", meta = (ClampMin = "1"))
-	int32 MinionsThreshold = 5;
+	int32 MinionsThreshold = 3;
 
 private:
 	void OnAttackAbilityEnded(UGameplayAbility* Ability);

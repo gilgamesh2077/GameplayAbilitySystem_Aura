@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerState.h"
 #include "AuraPlayerState.generated.h"
 
+class ULevelUpInfo;
 class UAttributeSet;
 class UAbilitySystemComponent;
 
@@ -30,6 +31,10 @@ public:
 	
 	FOnPlayerStateChanged OnLevelChangedDelegate;
 	
+	FOnPlayerStateChanged OnAttributePointsChangedDelegate;
+	
+	FOnPlayerStateChanged OnSpellPointsChangedDelegate;
+	
 	FORCEINLINE int32 GetPlayerLevel() const {return Level;}
 	
 	FORCEINLINE void SetPlayerLevel(const int32 InPlayerLevel) {Level = InPlayerLevel; OnLevelChangedDelegate.Broadcast(Level);}
@@ -41,7 +46,17 @@ public:
 	FORCEINLINE void SetXP(const int32 InXP) {XP = InXP; OnXPChangedDelegate.Broadcast(XP);}
 	
 	FORCEINLINE void AddToXP(const int32 XPBonus) {XP += XPBonus;OnXPChangedDelegate.Broadcast(XP);}
+	
+	FORCEINLINE int32 GetAttributePoints() const {return AttributePoints;}
+	
+	FORCEINLINE void AddToAttributePoints(const int32 AttributePointsBonus) {AttributePoints += AttributePointsBonus;OnAttributePointsChangedDelegate.Broadcast(AttributePoints);}
+	
+	FORCEINLINE int32 GetSpellPoints() const {return SpellPoints;}
+	
+	FORCEINLINE void AddToSpellPoints(const int32 SpellPointsBonus) {SpellPoints += SpellPointsBonus;OnSpellPointsChangedDelegate.Broadcast(SpellPoints);}
 
+	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly ,Category = "Level Up Info")
+	TObjectPtr<ULevelUpInfo> LevelUpInfo;
 protected:
 	
 	UPROPERTY(VisibleAnywhere)
@@ -49,6 +64,7 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+	
 	
 private:
 	
@@ -58,10 +74,22 @@ private:
 	UPROPERTY(VisibleAnywhere ,ReplicatedUsing = On_RepXP)
 	int32 XP = 0;
 	
+	UPROPERTY(VisibleAnywhere ,ReplicatedUsing = On_RepAttributePoints)
+	int32 AttributePoints = 0;
+	
+	UPROPERTY(VisibleAnywhere ,ReplicatedUsing = On_RepSpellPoints)
+	int32 SpellPoints = 0;
+	
 	UFUNCTION()
 	void On_RepLevel(int32 OldLevel) const;
 	
 	UFUNCTION()
 	void On_RepXP(int32 OldXP) const;
+	
+	UFUNCTION()
+	void On_RepAttributePoints(int32 OldAttributePoints) const;
+	
+	UFUNCTION()
+	void On_RepSpellPoints(int32 OldAttributePoints) const;
 	
 };

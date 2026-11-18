@@ -14,6 +14,8 @@ void AAuraPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	
 	DOREPLIFETIME(ThisClass,Level);
 	DOREPLIFETIME(ThisClass,XP);
+	DOREPLIFETIME(ThisClass,AttributePoints);
+	DOREPLIFETIME(ThisClass,SpellPoints);
 }
 
 AAuraPlayerState::AAuraPlayerState()
@@ -23,7 +25,6 @@ AAuraPlayerState::AAuraPlayerState()
 	AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-	
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 }
 
@@ -40,4 +41,14 @@ void AAuraPlayerState::On_RepLevel(int32 OldLevel) const
 void AAuraPlayerState::On_RepXP(int32 OldXP) const
 {
 	OnXPChangedDelegate.Broadcast(XP);
+}
+
+void AAuraPlayerState::On_RepAttributePoints(int32 OldAttributePoints) const
+{
+	OnAttributePointsChangedDelegate.Broadcast(AttributePoints);
+}
+
+void AAuraPlayerState::On_RepSpellPoints(int32 OldAttributePoints) const
+{
+	 OnSpellPointsChangedDelegate.Broadcast(SpellPoints);
 }

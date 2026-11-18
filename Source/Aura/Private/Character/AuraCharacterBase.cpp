@@ -179,6 +179,11 @@ void AAuraCharacterBase::SetMaster_Implementation(AActor* InMaster)
 	Master = Cast<AAuraCharacterBase>(InMaster);
 }
 
+ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
+}
+
 
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
@@ -227,6 +232,7 @@ void AAuraCharacterBase::AddCharacterAbilities()
 	if (!HasAuthority()) return;
 	
 	AuraASC->AddCharacterAbilities(StartupAbilities);
+	AuraASC->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 }
 
 void AAuraCharacterBase::Dissolve()

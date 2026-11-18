@@ -3,17 +3,18 @@
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/Ability/AuraGameplayAbility.h"
 #include "Aura/AuraLogChannels.h"
+#include "Interaction/PlayerInterface.h"
 
 
 UAuraAbilitySystemComponent::UAuraAbilitySystemComponent()
 {
 	
 	PrimaryComponentTick.bCanEverTick = true;
-
-
+	
 }
 
 void UAuraAbilitySystemComponent::AbilitySystemInfoSet()
@@ -37,6 +38,16 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 	}
 	bStartupAbilitiesGiven = true;
 	AbilitiesGivenDelegate.Broadcast(this);
+}
+
+void UAuraAbilitySystemComponent::AddCharacterPassiveAbilities(
+	const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities)
+{
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartupPassiveAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1);
+		GiveAbilityAndActivateOnce(AbilitySpec);
+	}
 }
 
 void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
@@ -84,10 +95,22 @@ void UAuraAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Inp
 			continue;
 		}
 
-		const bool bInvoked = InvokeReplicatedEvent(
-			EAbilityGenericReplicatedEvent::InputPressed,
-			AbilitySpec.Handle,
-			AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+		// 连击窗口内：按键交给 WaitInputPress，用于排队下一段。
+		// 连击已经判定结束（窗口关闭且没接上，冷却已开始）而后摇还没播完：按“重新激活”处理 ——
+		// bRetriggerInstancedAbility 会先结束旧实例再执行新技能；若冷却尚未结束，
+		// CanActivateAbility 会直接拒绝，旧实例与它的后摇都不受影响。
+		const UAuraGameplayAbility* AuraAbility = Cast<UAuraGameplayAbility>(AbilityInstance);
+		if (IsComboAttackWindowOpen() || !IsComboAttackInterruptible() || !AuraAbility || !AuraAbility->IsComboChainFinished())
+		{
+			InvokeReplicatedEvent(
+				EAbilityGenericReplicatedEvent::InputPressed,
+				AbilitySpec.Handle,
+				AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+		}
+		else
+		{
+			TryActivateAbility(AbilitySpec.Handle);
+		}
 	}
 }
 
@@ -154,6 +177,31 @@ FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbi
 		}
 	}
 	return FGameplayTag();
+}
+
+void UAuraAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		if (IPlayerInterface::Execute_GetAttributePoints(GetAvatarActor())>0)
+		{
+			ServerUpgradeAttribute(AttributeTag);
+		}
+	}
+}
+
+void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FGameplayTag& AttributeTag)
+{
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = 1.f;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(),AttributeTag,Payload);
+	
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		IPlayerInterface::Execute_AddToAttributePoints(GetAvatarActor(),-1);
+	}
 }
 
 void UAuraAbilitySystemComponent::CancelComboAttackAbilities()

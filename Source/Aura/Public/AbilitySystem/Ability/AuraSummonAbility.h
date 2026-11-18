@@ -31,7 +31,7 @@ public:
 	void ShowSpawnIndicators(const TArray<FVector>& Locations);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")
-	int32 NumMinions = 5;
+	int32 NumMinions = 3;
 	
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")

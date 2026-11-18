@@ -20,6 +20,9 @@ UAuraProjectileSpell::UAuraProjectileSpell()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
+	// 旧实例还在后摇里时，新的攻击输入会先结束旧实例再重新激活（见 ASC::AbilityInputTagPressed）。
+	bRetriggerInstancedAbility = true;
+
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
 	SetAssetTags(FGameplayTagContainer(FAuraGameplayTags::Get().Combo));
@@ -79,6 +82,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	}
 
 	CurrentComboSectionIndex = 0;
+	bComboCooldownCommitted = false;
 	AAuraPlayerController* APC = Cast<AAuraPlayerController>(ActorInfo->PlayerController);
 	if (APC)
 	{
@@ -149,7 +153,7 @@ void UAuraProjectileSpell::CancelAbility(const FGameplayAbilitySpecHandle Handle
 	// 再交给父类执行正常的取消 → EndAbility 流程。
 	if (IsActive() && CanBeCanceled())
 	{
-		CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
+		CommitComboCooldownOnce();
 	}
 
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
@@ -245,9 +249,10 @@ void UAuraProjectileSpell::HandleComboWindowClosed(FGameplayEventData Payload)
 
 	if (!ComboSections.IsValidIndex(NextComboSectionIndex))
 	{
-		// 没有接上下一段：不结束能力，也不重播第一段。
-		// 让当前段把收招（后摇）播完；因为本段火球已经出手，这段时间里移动输入
-		// 可以通过 CancelAbility 打断（并提交共享冷却）。播完后由 OnCompleted 收尾。
+		// 没有接上下一段：连击到此为止，立刻进入冷却（冷却从这里开始计时，而不是等后摇播完）。
+		// 能力仍保持激活把收招播完：这段时间移动可以打断；若玩家在冷却结束后、
+		// 后摇还没播完时再次攻击，会由 bRetriggerInstancedAbility 结束本实例后重新开始。
+		CommitComboCooldownOnce();
 		return;
 	}
 
@@ -266,6 +271,7 @@ void UAuraProjectileSpell::ResetComboState()
 	bWaitingForTargetData = false;
 	CurrentComboSectionIndex = INDEX_NONE;
 	QueuedComboSectionIndex = INDEX_NONE;
+	bComboCooldownCommitted = false;
 	ProjectileTargetLocation = FVector();
 	if (ComboWindowClosedTask)
 	{
@@ -319,7 +325,7 @@ void UAuraProjectileSpell::HandleComboInputPressed(float TimeWaited)
 	ComboInputTask = nullptr;
 
 	// 只有连击窗口内的输入才会排队下一段；窗口外（前摇/后摇）的输入一律忽略。
-	// 连段没能接上时由窗口关闭事件直接结束能力，下一次输入会重新激活技能并重新走冷却检查。
+	// 后摇中的再次攻击由 ASC::AbilityInputTagPressed 走“重新激活”分支处理。
 	QueueNextComboSection();
 
 	RequestTargetData();
@@ -330,6 +336,19 @@ void UAuraProjectileSpell::HandleComboInputPressed(float TimeWaited)
 	}
 }
 
+void UAuraProjectileSpell::CommitComboCooldownOnce()
+{
+	if (bComboCooldownCommitted)
+	{
+		return;
+	}
+
+	bComboCooldownCommitted = true;
+
+	// ForceCooldown = true：跳过 CheckCooldown，避免已有的冷却标签让本次提交失败。
+	CommitAbilityCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+}
+
 void UAuraProjectileSpell::FinishComboChain()
 {
 	if (!IsActive())
@@ -337,11 +356,10 @@ void UAuraProjectileSpell::FinishComboChain()
 		return;
 	}
 
-	// 整段连击（Attack1 → Attack2 → Attack3）共用同一份冷却：只在连击真正结束时
-	// 提交一次。ForceCooldown = true，跳过 CheckCooldown，避免旧冷却标签让本次提交失败。
-	CommitAbilityCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+	// 整段连击（Attack1/2/3）共享同一份冷却：窗口结束没接上时已经提交过，这里只做兜底。
+	CommitComboCooldownOnce();
 
-	// 结束能力：ResetComboState 会停掉蒙太奇与所有监听任务。
+	// 结束能力：ResetComboState 会清理状态，蒙太奇由 Super::EndAbility 停止。
 	// 下一次攻击输入会重新 TryActivateAbility，届时才由 CanActivateAbility → CheckCooldown 拦截。
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

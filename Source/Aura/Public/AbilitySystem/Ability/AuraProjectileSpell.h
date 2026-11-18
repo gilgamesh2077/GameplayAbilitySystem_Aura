@@ -32,6 +32,11 @@ class AURA_API UAuraProjectileSpell : public UProjectileSpell
 public:
 	UAuraProjectileSpell();
 	void RequestTargetData();
+
+	// 连击窗口结束且没接上下一段时置为 true：冷却已开始，能力可能还在播后摇。
+	// ASC 用它决定“再次按键”是排队连击还是结束旧实例重新激活。
+	virtual bool IsComboChainFinished() const override { return bComboCooldownCommitted; }
+
 private:
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -75,6 +80,7 @@ protected:
 
 	bool QueueNextComboSection();
 	void FinishComboChain();
+	void CommitComboCooldownOnce();
 	bool IsComboAttackWindowOpen() const;
 	const FComboAttackSectionSettings* GetCurrentComboSectionSettings() const;
 	void ResetComboState();
@@ -101,6 +107,8 @@ protected:
 
 	int32 CurrentComboSectionIndex = INDEX_NONE;
 	int32 QueuedComboSectionIndex = INDEX_NONE;
+	// 整段连击只提交一次冷却：窗口结束没接上 / 被取消 / 蒙太奇播完，先到者生效
+	bool bComboCooldownCommitted = false;
 	
 private:
 	FVector ProjectileTargetLocation;

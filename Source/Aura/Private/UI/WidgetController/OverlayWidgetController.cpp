@@ -18,8 +18,8 @@ void UOverlayWidgetController::BroadcastInitialValues()
 	OnHealthChanged.Broadcast(AuraAttributeSet->GetHealth());
 	OnMaxManaChanged.Broadcast(AuraAttributeSet->GetMaxMana());
 	OnManaChanged.Broadcast(AuraAttributeSet->GetMana());
-	OnXPPercentChanged.Broadcast(GetXPBarPercentForXP(AuraPlayerState->GetXP()));
-	OnLevelChanged.Broadcast(AuraPlayerState->GetPlayerLevel());
+	OnXPPercentChangedDelegate.Broadcast(GetXPBarPercentForXP(AuraPlayerState->GetXP()));
+	OnPlayerLevelChangedDelegate.Broadcast(AuraPlayerState->GetPlayerLevel());
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
@@ -89,34 +89,40 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UAuraAbilitySystemCo
 	FForEachAbility BroadcastDelegate;
 	BroadcastDelegate.BindLambda([this,AuraAbilitySystemComponent](const FGameplayAbilitySpec& AbilitySpec)
 	{
-		FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoFromTag(AuraAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
-		Info.InputTag = AuraAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
-		AbilityInfoDelegate.Broadcast(Info);
+		const FGameplayTag& AbilityTag = AuraAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec);
+		if (AbilityTag.IsValid())
+		{
+			FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoFromTag(AuraAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
+			Info.InputTag = AuraAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
+			AbilityInfoDelegate.Broadcast(Info);
+		}
+		
 	});
 	AuraAbilitySystemComponent->ForEachAbility(BroadcastDelegate);
 }
 
 void UOverlayWidgetController::OnXPChanged(int32 NewXP) const
 {
-	OnXPPercentChanged.Broadcast(GetXPBarPercentForXP(NewXP));
+	OnXPPercentChangedDelegate.Broadcast(GetXPBarPercentForXP(NewXP));
 }
 
 void UOverlayWidgetController::OnPlayerLevelChanged(int32 NewPlayerLevel) const
 {
-	OnLevelChanged.Broadcast(NewPlayerLevel);
+	OnPlayerLevelChangedDelegate.Broadcast(NewPlayerLevel);
 }
 
 float UOverlayWidgetController::GetXPBarPercentForXP(int32 XP) const
 {
-	checkf(LevelUpInfo,TEXT("Unabled to find LevelUpInfo. Please fill out AuraPlayerState Blueprint"));
-	
-	const int32 Level = LevelUpInfo->FindLevelForXP(LevelUpInfo->LevelUpInformation,XP);
-	const int32 MaxLevel = LevelUpInfo->LevelUpInformation.Num() - 1;
+	const AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+	if (!AuraPlayerState) return 0.f;
+	if (!IsValid(AuraPlayerState->LevelUpInfo)) return 0.f;
+	const int32 Level = AuraPlayerState->LevelUpInfo->FindLevelForXP(AuraPlayerState->LevelUpInfo->LevelUpInformation,XP);
+	const int32 MaxLevel = AuraPlayerState->LevelUpInfo->LevelUpInformation.Num() - 1;
 	
 	if (Level<= MaxLevel && Level > 0)
 	{
-		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInformation[Level].LevelUpRequirement;
-		const int32 PreviousLevelUpRequirement = LevelUpInfo->LevelUpInformation[Level - 1].LevelUpRequirement;
+		const int32 LevelUpRequirement = AuraPlayerState->LevelUpInfo->LevelUpInformation[Level].LevelUpRequirement;
+		const int32 PreviousLevelUpRequirement = AuraPlayerState->LevelUpInfo->LevelUpInformation[Level - 1].LevelUpRequirement;
 		
 		const int32 DeltaLevelRequirement = LevelUpRequirement - PreviousLevelUpRequirement;
 		const int32 XPForThisLevel = XP - PreviousLevelUpRequirement;

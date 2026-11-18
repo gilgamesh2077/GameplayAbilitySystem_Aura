@@ -1,4 +1,4 @@
-﻿// See you in the battle
+// See you in the battle
 
 #pragma once
 
@@ -16,5 +16,7 @@ class AURA_API UAuraGameplayAbility : public UGameplayAbility
 public:
 	UPROPERTY(EditDefaultsOnly,Category="Input")
 	FGameplayTag StartupInputTag;
-	
+
+	/** 连段已判定结束、正在等待玩家重新激活（用于“旧实例还活着时按新输入重新开始”）。 */
+	virtual bool IsComboChainFinished() const { return false; }
 };

@@ -106,7 +106,8 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 void UBTTask_Attack::OnAttackAbilityEnded(UGameplayAbility* Ability)
 {
 	// 只响应本次激活技能（攻击或召唤）的结束，别的技能（如受击 HitReact）结束不触发
-	if (Ability && ActiveAbilityTag.IsValid() && !Ability->AbilityTags.HasTag(ActiveAbilityTag))
+	if (Ability && ActiveAbilityTag.IsValid() && 
+		!Ability->GetAssetTags().HasTagExact(ActiveAbilityTag))
 	{
 		return;
 	}

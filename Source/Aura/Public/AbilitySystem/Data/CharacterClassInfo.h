@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "ScalableFloat.h"
 #include "CharacterClassInfo.generated.h"
+
 class UGameplayEffect;
 class UGameplayAbility;
 
@@ -26,6 +28,9 @@ struct FCharacterClassDefaultInfo
 	
 	UPROPERTY(EditDefaultsOnly,Category  = "Class Defaults")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;//角色特有技能
+	
+	UPROPERTY(EditDefaultsOnly,Category  = "Class Defaults")
+	FScalableFloat XPReward = FScalableFloat();
 };
 
 /**

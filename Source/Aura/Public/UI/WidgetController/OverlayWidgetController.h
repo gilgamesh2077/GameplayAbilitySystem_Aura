@@ -67,10 +67,10 @@ public:
 	FAbilityInfoSignature AbilityInfoDelegate;
 	
 	UPROPERTY(BlueprintAssignable, Category ="GAS|XP")
-	FOnAttributeChangedSignature OnXPPercentChanged;
+	FOnAttributeChangedSignature OnXPPercentChangedDelegate;
 	
 	UPROPERTY(BlueprintAssignable, Category ="GAS|Level")
-	FOnAttributeChangedSignature OnLevelChanged;
+	FOnPlayerStateChangedSignature OnPlayerLevelChangedDelegate;
 protected:
 	
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly ,Category = "Widget Data")
@@ -78,9 +78,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly ,Category = "Widget Data")
 	TObjectPtr<UAbilityInfo> AbilityInfo;
-	
-	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly ,Category = "Widget Data")
-	TObjectPtr<ULevelUpInfo> LevelUpInfo;
 	
 	void OnInitializeStartupAbilities(UAuraAbilitySystemComponent* AuraAbilitySystemComponent);
 	

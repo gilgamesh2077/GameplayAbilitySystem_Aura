@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AuraCharacterBase.generated.h"
 
 class UNiagaraSystem;
@@ -74,6 +75,8 @@ public:
 	virtual void SetMinionsCount_Implementation(int32 Count) override;
 	
 	virtual void SetMaster_Implementation(AActor* InMaster) override;
+	
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	/*
 	 * Combat Interface
 	 */
@@ -145,12 +148,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly , Category = "Combat")
 	USoundBase* DeathSound;
 	
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly , Category = "Character Class Defaults")
+	ECharacterClass CharacterClass = ECharacterClass::Warrior;
 	
 private:
 	
 	UPROPERTY(EditAnywhere,Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+	
+	UPROPERTY(EditAnywhere,Category="Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartupPassiveAbilities;
 	
 	UPROPERTY(EditAnywhere,Category="Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
@@ -161,4 +168,6 @@ private:
 	
 	// Minions
 	int32 MinionsCount = 0;
+	
+	
 };
