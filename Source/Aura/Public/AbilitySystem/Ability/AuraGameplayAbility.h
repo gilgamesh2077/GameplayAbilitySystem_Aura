@@ -19,4 +19,9 @@ public:
 
 	/** 连段已判定结束、正在等待玩家重新激活（用于“旧实例还活着时按新输入重新开始”）。 */
 	virtual bool IsComboChainFinished() const { return false; }
+	
+	virtual FString GetDescription(int32 Level);
+	virtual FString GetNextLevelDescription(int32 Level);
+	static FString GetLockedDescription(int32 Level);
 };
+

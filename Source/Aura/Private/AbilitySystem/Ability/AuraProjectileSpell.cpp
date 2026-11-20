@@ -15,6 +15,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Player/AuraPlayerController.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
+#include "AbilitySystem/AuraAttributeSet.h"
 
 UAuraProjectileSpell::UAuraProjectileSpell()
 {
@@ -48,6 +49,90 @@ void UAuraProjectileSpell::RequestTargetData()
 	TargetDataUnderMouseTask = UTargetDataUnderMouse::CreateTargetDataUnderMouse(this);
 	TargetDataUnderMouseTask->ValidData.AddDynamic(this,&ThisClass::UAuraProjectileSpell::HandleTargetDataUnderMouse); 
 	TargetDataUnderMouseTask->ReadyForActivation();
+}
+
+FString UAuraProjectileSpell::GetDescription(int32 Level)
+{
+	const int32 Damage = GetDamageByDamageType(Level,FAuraGameplayTags::Get().Damage_Fire);
+	const float ManaCost = GetManaCost(Level);
+	const float Cooldown = GetCooldown(Level);
+	
+	if (Level == 1)
+	{
+		return FString::Printf(TEXT(
+			//Title
+			"<Title>FIRE BOLT</>\n\n"
+			//Level
+			"<Small>Level:</><Level>%d</>\n"
+			//ManaCost
+			"<Small>ManaCost: </><ManaCost>%.1f</>\n\n"
+			//Damage
+			"<Default>Launches a bolt of fire, "
+			"exploding on impact and dealing: </>"
+			"<Damage>%d</><Default> fire damage with "
+			"a chance to burn</>\n\n"
+			//Cooldown
+			"<Small>Cooldown: </><Cooldown>%.1f</>\n"
+			),
+			//Values
+			Level,
+			-ManaCost,
+			Damage,
+			Cooldown);
+	}
+	else
+	{
+		return FString::Printf(TEXT(
+			//Title
+			"<Title>FIRE BOLT</>\n\n"
+			//Level
+			"<Small>Level:</><Level>%d</>\n"
+			//ManaCost
+			"<Small>ManaCost: </><ManaCost>%.1f</>\n\n"
+			//Damage
+			"<Default>Launches %d bolts of fire,"
+			" exploding on impact and dealing: </>:"
+			"<Damage>%d</><Default> fire damage with"
+			" a chance to burn</>\n\n"
+			//Cooldown
+			"<Small>Cooldown: </><Cooldown>%.1f</>\n"
+			),
+			Level,
+			-ManaCost,
+			FMath::Min(Level , NumProjectiles),
+			Damage,
+			Cooldown);
+	}
+}
+
+FString UAuraProjectileSpell::GetNextLevelDescription(int32 Level)
+{
+	const int32 Damage = GetDamageByDamageType(Level+1,FAuraGameplayTags::Get().Damage_Fire);
+	const float NextLevelManaCost = GetManaCost(Level+1);
+	const float NextLevelCooldown = GetCooldown(Level+1);
+	
+	return FString::Printf(TEXT(
+		//Title
+		"<Title>Next Level</>\n\n"
+		//Level
+		"<Small>Level:</><Level>%d</>\n"
+		//ManaCost
+		"<Small>ManaCost: </><ManaCost>%.1f</>\n\n"
+		//Damage
+		"<Default>Launches %d bolts of fire,"
+		" exploding on impact and dealing: </>"
+		"<Damage>%d</><Default> fire damage with"
+		" a chance to burn</>\n\n"
+		//Cooldown
+		"<Small>Cooldown: </><Cooldown>%.1f</>\n"
+		),
+		Level+1,
+		-NextLevelManaCost,
+		FMath::Min(Level+1 , NumProjectiles),
+		Damage,
+		NextLevelCooldown);
+	
+	
 }
 
 void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -197,6 +282,33 @@ const FComboAttackSectionSettings* UAuraProjectileSpell::GetCurrentComboSectionS
 	return ComboSections.IsValidIndex(CurrentComboSectionIndex) ? &ComboSections[CurrentComboSectionIndex] : nullptr;
 }
 
+
+float UAuraProjectileSpell::GetManaCost(float InLevel) const 
+{
+	float ManaCost = 0.f;
+	if (const UGameplayEffect* CostEffect = GetCostGameplayEffect())
+	{
+		for (FGameplayModifierInfo Mod : CostEffect->Modifiers)
+		{
+			if (Mod.Attribute == UAuraAttributeSet::GetManaAttribute())
+			{
+				Mod.ModifierMagnitude.GetStaticMagnitudeIfPossible(InLevel,ManaCost);
+				break;
+			}
+		}
+	}
+	return ManaCost;
+}
+
+float UAuraProjectileSpell::GetCooldown(float InLevel) const
+{
+	float Cooldown = 0.f;
+	if (const UGameplayEffect* CooldownEffect = GetCooldownGameplayEffect())
+	{
+		CooldownEffect->DurationMagnitude.GetStaticMagnitudeIfPossible(InLevel,Cooldown);
+	}
+	return Cooldown;
+}
 
 void UAuraProjectileSpell::HandleTargetDataUnderMouse(const FGameplayAbilityTargetDataHandle& DataHandle)
 {

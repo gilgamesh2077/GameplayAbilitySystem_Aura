@@ -32,6 +32,8 @@ public:
 	UFUNCTION(Client , Reliable)
 	void ShowDamageNumber(float DamageAmount , ACharacter *TargetCharacter, bool bBlockedHit, bool bCriticalHit);
 	
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
 protected:
 	virtual void BeginPlay() override;	
 	virtual void SetupInputComponent() override;
@@ -67,8 +69,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UAuraInputConfig> InputConfig;
 	
-	UPROPERTY()
-	TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
+	
 	
 	UAuraAbilitySystemComponent* GetASC();
 	

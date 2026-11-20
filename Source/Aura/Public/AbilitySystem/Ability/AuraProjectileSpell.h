@@ -32,10 +32,15 @@ class AURA_API UAuraProjectileSpell : public UProjectileSpell
 public:
 	UAuraProjectileSpell();
 	void RequestTargetData();
+	
+	virtual FString GetDescription(int32 Level) override;
+	virtual FString GetNextLevelDescription(int32 Level) override;
 
 	// 连击窗口结束且没接上下一段时置为 true：冷却已开始，能力可能还在播后摇。
 	// ASC 用它决定“再次按键”是排队连击还是结束旧实例重新激活。
 	virtual bool IsComboChainFinished() const override { return bComboCooldownCommitted; }
+	
+	
 
 private:
 	
@@ -62,6 +67,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo")
 	FGameplayTag MontageEventTag;
+	
+	UPROPERTY(EditDefaultsOnly)
+	int32 NumProjectiles = 5;
+	
+	float GetManaCost(float InLevel = 1.f) const;
+	float GetCooldown(float InLevel = 1.f) const; 
 	
 	UFUNCTION()
 	void HandleTargetDataUnderMouse(const FGameplayAbilityTargetDataHandle& DataHandle);

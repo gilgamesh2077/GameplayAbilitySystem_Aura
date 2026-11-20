@@ -1,0 +1,54 @@
+Log started at 11/18/2026 21:21:33 (2026-11-18T13:21:33Z)
+Resolved project argument C:\Aura\Aura.uproject to C:\Aura\Aura.uproject
+No config file at C:\ProgramData\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\liuju\AppData\Local\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\liuju\Documents\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Configuration will be read from:
+  C:\Users\liuju\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Aura\Intermediate\Build\XmlConfigCache.bin): C:\Users\liuju\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Aura\Intermediate\Build\XmlConfigCache.bin): C:\Aura\Saved\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Aura\Intermediate\Build\XmlConfigCache.bin): C:\Users\liuju\AppData\Local\UnrealEngine\Intermediate\Build\UnrealBuildTool.Env.BuildConfiguration.xml
+Log file: C:\Aura\_ubt_build.log
+
+Setting temp directory to 'C:\Users\liuju\AppData\Local\Temp\dsh-tr40FF\UnrealBuildTool\12c8af0c'
+    Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+    Registering build platform: UnrealBuildTool.IOSPlatformFactory
+    Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+    Registering build platform: UnrealBuildTool.MacPlatformFactory
+    Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+    Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+Found Windows 10 SDK root at C:\Program Files\Windows Kits\10 (1)
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+Found Windows 10 SDK version 10.0.19041.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.19041.0 at C:\Program Files (x86)\Windows Kits\10
+Found Windows 10 SDK version 10.0.22621.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.22621.0 at C:\Program Files (x86)\Windows Kits\10
+Found Windows 10 SDK version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Win64 Installed SDK(s): MinVersion_Sdk=10.0.19041.0, MaxVersion_Sdk=10.9.99999.0, CurrentVersion_Sdk=10.0.22621.0, Version_AutoSdk=10.0.22621.0, CurrentVersion_AutoSdk=
+        Registering build platform: Win64 - buildable: True
+    Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+Command line: "C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" AuraEditor Win64 DebugGame -Project=C:\Aura\Aura.uproject -WaitMutex -NoUBA -Log=C:\Aura\_ubt_build.log
+Using 'git status' to determine working set for adaptive non-unity build (C:\Aura).
+Generated code is up to date.
+UnrealEditor-Aura-Win64-DebugGame.dll: Produced item "C:\Aura\Binaries\Win64\UnrealEditor-Aura-Win64-DebugGame.pdb" doesn't exist.
+UnrealEditor-Aura-Win64-DebugGame.lib: Produced item "C:\Aura\Intermediate\Build\Win64\x64\UnrealEditor\DebugGame\Aura\UnrealEditor-Aura-Win64-DebugGame.lib" doesn't exist.
+AuraGameplayTags.cpp: Prerequisite C:\Aura\Source\Aura\Private\AuraGameplayTags.cpp is newer than the last execution of the action: 11/18/2026 21:08:54 vs 11/18/2026 20:49:24
+AuraAbilitySystemComponent.cpp: Prerequisite C:\Aura\Source\Aura\Private\AbilitySystem\AuraAbilitySystemComponent.cpp is newer than the last execution of the action: 11/18/2026 21:08:54 vs 11/18/2026 20:49:25
+AuraPlayerController.cpp: Dependency C:\Aura\Source\Aura\Public\AuraGameplayTags.h is newer than the last execution of the action: 11/18/2026 21:20:58 vs 11/18/2026 20:49:27
+Module.Aura.3.cpp: Dependency C:\Aura\Source\Aura\Public\AuraGameplayTags.h is newer than the last execution of the action: 11/18/2026 21:20:58 vs 11/18/2026 20:49:31
+AuraEditor-Win64-DebugGame.target: Prerequisite UnrealEditor-Aura-Win64-DebugGame.dll is produced by outdated action.
+Checking for live coding mutex: Global\LiveCoding_C++Program Files+Epic Games+UE_5.6+Engine+Binaries+Win64+UnrealEditor-Win64-DebugGame.exe
+Building AuraEditor...
+Using Visual Studio 2022 14.38.33145 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Upgrade]
+[Upgrade] Using backward-compatible include order. The latest version of UE has changed the order of includes, which may require code changes. The current setting is:
+[Upgrade]     IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3
+[Upgrade] Suppress this message by setting 'IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;' in AuraEditor.Target.cs.
+[Upgrade] Alternatively you can set this to 'EngineIncludeOrderVersion.Latest' to always use the latest include order. This will potentially cause compile errors when integrating new versions of the engine.
+[Upgrade]
+[Adaptive Build] Excluded from Aura unity file: AuraGameplayTags.cpp, AuraAbilitySystemComponent.cpp, AuraAbilitySystemLibrary.cpp, AuraPlayerController.cpp, AuraHUD.cpp, AttributeMenuWidgetController.cpp, AuraWidgetController.cpp, OverlayWidgetController.cpp, SpellMenuWidgetController.cpp
+Determining max actions to execute in parallel (14 physical cores, 20 logical cores)
+  Executing up to 14 processes, one per physical core
+Using Parallel executor to run 7 action(s)
+------ Building 7 action(s) started ------
